@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>DoodhWala - Shift Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e5e9eb",
+                        "on-background": "#181c1e",
+                        "on-surface": "#181c1e",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-tint": "#1b6d24",
+                        "tertiary": "#794b00",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#bfcaba",
+                        "on-secondary-fixed-variant": "#414754",
+                        "secondary-fixed-dim": "#c1c6d7",
+                        "error": "#ba1a1a",
+                        "outline": "#707a6c",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#005312",
+                        "primary": "#0d631b",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary-container": "#dde2f3",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#88d982",
+                        "primary-container": "#2e7d32",
+                        "tertiary-container": "#9a6100",
+                        "on-secondary-fixed": "#161c27",
+                        "on-primary-container": "#cbffc2",
+                        "on-secondary-container": "#5e6473",
+                        "on-primary": "#ffffff",
+                        "surface": "#f7fafc",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed": "#a3f69c",
+                        "surface-container-low": "#f1f4f6",
+                        "background": "#f7fafc",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-primary-fixed": "#002204",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "inverse-primary": "#88d982",
+                        "secondary-fixed": "#dde2f3",
+                        "on-tertiary-container": "#ffeedf",
+                        "surface-variant": "#e0e3e5",
+                        "on-surface-variant": "#40493d",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d7dadc",
+                        "surface-container": "#ebeef0",
+                        "surface-bright": "#f7fafc",
+                        "secondary": "#585e6c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "gutter": "16px",
+                        "touch-target-min": "48px",
+                        "stack-sm": "8px",
+                        "margin": "16px",
+                        "base": "4px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "display-title": ["Inter"],
+                        "customer-name": ["Inter"],
+                        "button-text": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-title": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "customer-name": ["20px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "button-text": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "label-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-gutter w-full h-touch-target-min bg-surface dark:bg-background flat no shadows">
+<button aria-label="Back" class="w-touch-target-min h-touch-target-min flex items-center justify-center text-on-surface-variant hover:bg-primary/8 active:scale-95 transition-transform duration-100 rounded-full">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-display-title text-display-title text-primary font-bold">Shift Summary</h1>
+<div class="w-touch-target-min h-touch-target-min"></div> <!-- Spacer for center alignment -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-gutter py-stack-md flex flex-col gap-stack-lg pb-24">
+<!-- Route Overview Card -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-xl p-stack-md flex flex-col gap-stack-md">
+<div class="flex items-center gap-stack-sm text-primary">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<h2 class="font-customer-name text-customer-name">Route Overview</h2>
+</div>
+<div class="grid grid-cols-2 gap-gutter divide-x divide-surface-variant">
+<!-- Morning -->
+<div class="flex flex-col gap-stack-sm">
+<h3 class="font-button-text text-button-text text-on-surface-variant flex items-center gap-base">
+<span class="material-symbols-outlined text-[20px]" data-icon="light_mode">light_mode</span> Morning
+                    </h3>
+<div class="flex flex-col gap-base text-on-surface">
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="text-sm">Cow Milk</span>
+<span class="font-medium text-primary">42.5<span class="text-xs text-on-surface-variant"> / 45.0 L</span></span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="text-sm">Buffalo</span>
+<span class="font-medium">28.0<span class="text-xs text-on-surface-variant"> L</span></span>
+</div>
+<div class="flex justify-between items-center bg-error-container text-on-error-container p-2 rounded mt-1">
+<span class="text-sm font-medium">Skips</span>
+<span class="font-bold">4</span>
+</div>
+</div>
+</div>
+<!-- Evening -->
+<div class="flex flex-col gap-stack-sm pl-gutter">
+<h3 class="font-button-text text-button-text text-on-surface-variant flex items-center gap-base">
+<span class="material-symbols-outlined text-[20px]" data-icon="dark_mode">dark_mode</span> Evening
+                    </h3>
+<div class="flex flex-col gap-base text-on-surface">
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="text-sm">Cow Milk</span>
+<span class="font-medium text-primary">12.0<span class="text-xs text-on-surface-variant"> L</span></span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="text-sm">Buffalo</span>
+<span class="font-medium">31.5<span class="text-xs text-on-surface-variant"> L</span></span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded mt-1 text-on-surface-variant">
+<span class="text-sm">Skips</span>
+<span class="font-medium">1</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Financial Snapshot Card -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-xl p-stack-md flex flex-col gap-stack-md">
+<div class="flex items-center gap-stack-sm text-tertiary-container">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<h2 class="font-customer-name text-customer-name">Financial Snapshot</h2>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<!-- Cash -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-stack-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-button-text text-button-text">Cash Collected</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">3 receipts</span>
+</div>
+</div>
+<span class="font-customer-name text-customer-name text-on-surface">₹1,200</span>
+</div>
+<!-- UPI -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-stack-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+</div>
+<div class="flex flex-col">
+<span class="font-button-text text-button-text">UPI Cleared</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">5 receipts</span>
+</div>
+</div>
+<span class="font-customer-name text-customer-name text-on-surface">₹3,450</span>
+</div>
+</div>
+<!-- Total -->
+<div class="mt-2 p-4 bg-primary-container text-on-primary-container rounded-lg flex items-center justify-between">
+<span class="font-button-text text-button-text">Total Added to Balances</span>
+<span class="font-display-title text-display-title">+₹4,890</span>
+</div>
+</section>
+<!-- Share Action Area -->
+<div class="mt-auto pt-stack-md flex justify-center">
+<button class="w-full h-touch-target-min bg-primary text-on-primary rounded-full font-button-text text-button-text flex items-center justify-center gap-stack-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+                Share Summary via WhatsApp
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-base py-stack-sm bg-surface border-t border-outline-variant flat no shadows md:hidden">
+<!-- Home (Active) -->
+<button aria-label="Home" class="flex flex-col items-center justify-center active:scale-90 transition-all w-16 group">
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 mb-1">
+<span class="material-symbols-outlined" data-icon="route" style="font-variation-settings: 'FILL' 1;">route</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface">Home</span>
+</button>
+<!-- Customers -->
+<button aria-label="Customers" class="flex flex-col items-center justify-center active:scale-90 transition-all w-16 text-on-secondary-container hover:bg-secondary-container/50 rounded-lg py-1">
+<span class="material-symbols-outlined mb-1" data-icon="groups">groups</span>
+<span class="font-label-sm text-label-sm">Customers</span>
+</button>
+<!-- Billing -->
+<button aria-label="Billing" class="flex flex-col items-center justify-center active:scale-90 transition-all w-16 text-on-secondary-container hover:bg-secondary-container/50 rounded-lg py-1">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm">Billing</span>
+</button>
+<!-- Payments -->
+<button aria-label="Payments" class="flex flex-col items-center justify-center active:scale-90 transition-all w-16 text-on-secondary-container hover:bg-secondary-container/50 rounded-lg py-1">
+<span class="material-symbols-outlined mb-1" data-icon="payments">payments</span>
+<span class="font-label-sm text-label-sm">Payments</span>
+</button>
+<!-- Settings -->
+<button aria-label="Settings" class="flex flex-col items-center justify-center active:scale-90 transition-all w-16 text-on-secondary-container hover:bg-secondary-container/50 rounded-lg py-1">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</button>
+</nav>
+</body></html>

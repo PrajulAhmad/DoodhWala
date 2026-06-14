@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Add New Customer - DoodhWala</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#2e7d32",
+                    "inverse-primary": "#88d982",
+                    "on-surface": "#181c1e",
+                    "surface-container-high": "#e5e9eb",
+                    "on-primary-fixed-variant": "#005312",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e0e3e5",
+                    "inverse-surface": "#2d3133",
+                    "surface-dim": "#d7dadc",
+                    "surface": "#f7fafc",
+                    "surface-container": "#ebeef0",
+                    "on-secondary-fixed": "#161c27",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#002204",
+                    "on-background": "#181c1e",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary-fixed-variant": "#414754",
+                    "surface-tint": "#1b6d24",
+                    "on-surface-variant": "#40493d",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#dde2f3",
+                    "outline": "#707a6c",
+                    "secondary": "#585e6c",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f1f4f6",
+                    "surface-bright": "#f7fafc",
+                    "on-primary-container": "#cbffc2",
+                    "on-secondary-container": "#5e6473",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "tertiary-container": "#9a6100",
+                    "primary": "#0d631b",
+                    "tertiary": "#794b00",
+                    "on-tertiary-container": "#ffeedf",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary-fixed-dim": "#c1c6d7",
+                    "primary-fixed": "#a3f69c",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#eef1f3",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#88d982",
+                    "background": "#f7fafc",
+                    "secondary-fixed": "#dde2f3",
+                    "outline-variant": "#bfcaba"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-lg": "24px",
+                    "base": "4px",
+                    "stack-sm": "8px",
+                    "gutter": "16px",
+                    "touch-target-min": "48px",
+                    "stack-md": "16px",
+                    "margin": "16px"
+            },
+            "fontFamily": {
+                    "button-text": ["Inter"],
+                    "customer-name": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "display-title": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "button-text": ["16px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "customer-name": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "display-title": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar for webkit to keep it clean */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #bfcaba;
+            border-radius: 4px;
+        }
+        
+        /* Hide number input spinners */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        /* Focus ring utility */
+        .focus-ring:focus-within {
+            outline: 2px solid #0d631b;
+            outline-offset: -2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md antialiased pb-[100px]">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background sticky top-0 z-50 flex items-center justify-between px-gutter w-full h-touch-target-min border-b border-surface-variant md:hidden">
+<button aria-label="Go back" class="w-touch-target-min h-touch-target-min flex items-center justify-center text-on-surface-variant hover:bg-primary/8 active:scale-95 transition-transform duration-100 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-display-title text-display-title text-on-surface truncate px-2">Add Customer</h1>
+<div class="w-touch-target-min h-touch-target-min"></div> <!-- Spacer to center title -->
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-md mx-auto px-gutter py-stack-lg space-y-stack-lg">
+<!-- Section: Basic Details -->
+<section class="bg-surface-container-lowest p-stack-md rounded-xl border border-surface-variant shadow-sm space-y-stack-md">
+<h2 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Basic Details</h2>
+<!-- Full Name -->
+<div class="space-y-base">
+<label class="font-label-sm text-label-sm text-on-surface" for="fullName">Full Name</label>
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface transition-colors">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">person</span>
+<input class="w-full h-[48px] pl-10 pr-4 bg-transparent border-none text-body-md text-on-surface placeholder:text-outline focus:ring-0 rounded-lg" id="fullName" placeholder="e.g. Rahul Sharma" type="text"/>
+</div>
+</div>
+<!-- Phone Number -->
+<div class="space-y-base">
+<label class="font-label-sm text-label-sm text-on-surface" for="phone">Phone Number</label>
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface transition-colors">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">call</span>
+<input class="w-full h-[48px] pl-10 pr-4 bg-transparent border-none text-body-md text-on-surface placeholder:text-outline focus:ring-0 rounded-lg" id="phone" placeholder="10-digit mobile number" type="tel"/>
+</div>
+</div>
+<!-- Address -->
+<div class="space-y-base">
+<label class="font-label-sm text-label-sm text-on-surface" for="address">Address</label>
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface transition-colors">
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant" style="font-size: 20px;">location_on</span>
+<textarea class="w-full pl-10 pr-4 py-3 bg-transparent border-none text-body-md text-on-surface placeholder:text-outline focus:ring-0 rounded-lg resize-none" id="address" placeholder="House no, Street, Landmark" rows="2"></textarea>
+</div>
+</div>
+<!-- Route Sequence Number -->
+<div class="flex items-center justify-between pt-stack-sm border-t border-surface-variant">
+<div class="space-y-1">
+<label class="font-label-sm text-label-sm text-on-surface block">Route Sequence Number</label>
+<span class="text-xs text-on-surface-variant block">Delivery order priority</span>
+</div>
+<div class="flex items-center bg-surface border border-outline-variant rounded-lg h-[48px] p-1">
+<button aria-label="Decrease sequence" class="w-[40px] h-[40px] flex items-center justify-center rounded-md hover:bg-surface-variant active:bg-surface-dim text-primary transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<input aria-label="Sequence number" class="w-[48px] text-center bg-transparent border-none font-customer-name text-customer-name text-on-surface focus:ring-0 p-0" type="number" value="1"/>
+<button aria-label="Increase sequence" class="w-[40px] h-[40px] flex items-center justify-center rounded-md hover:bg-surface-variant active:bg-surface-dim text-primary transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Section: Billing Preferences -->
+<section class="bg-surface-container-lowest p-stack-md rounded-xl border border-surface-variant shadow-sm flex items-center justify-between">
+<div class="pr-4">
+<label class="font-button-text text-button-text text-on-surface block mb-1" for="autoInvoice">Auto-include in monthly invoices</label>
+<span class="text-xs text-on-surface-variant">Generate bill automatically on 1st</span>
+</div>
+<!-- Custom Toggle -->
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0 h-[48px] w-[60px] justify-end">
+<input checked="" class="sr-only peer" id="autoInvoice" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[14px] after:left-[8px] after:bg-surface-container-lowest after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</section>
+<!-- Section: Subscriptions -->
+<section class="space-y-stack-md">
+<h2 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider pl-1">Daily Subscriptions</h2>
+<!-- Morning Slot Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-sm overflow-hidden relative">
+<!-- Slot Header -->
+<div class="bg-tertiary-fixed/30 px-stack-md py-stack-sm border-b border-surface-variant flex items-center justify-between">
+<div class="flex items-center gap-2 text-tertiary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+<span class="font-button-text text-button-text">Morning Slot</span>
+</div>
+<!-- Enabled Toggle -->
+<label class="relative inline-flex items-center cursor-pointer h-[32px]">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[6px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-tertiary-container"></div>
+</label>
+</div>
+<div class="p-stack-md space-y-stack-md">
+<!-- Product Picker -->
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface">
+<select class="w-full h-[48px] pl-4 pr-10 bg-transparent border-none text-body-md text-on-surface focus:ring-0 rounded-lg appearance-none cursor-pointer">
+<option value="cow_milk">Cow Milk (Raw)</option>
+<option value="buffalo_milk">Buffalo Milk (Raw)</option>
+<option value="a2_milk">A2 Gir Cow Milk</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<div class="grid grid-cols-2 gap-stack-md">
+<!-- Quantity Picker -->
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Quantity (L)</label>
+<div class="flex items-center bg-surface border border-outline-variant rounded-lg h-[48px] p-1">
+<button class="w-[36px] h-full flex items-center justify-center rounded text-primary hover:bg-surface-variant active:bg-surface-dim">
+<span class="material-symbols-outlined" style="font-size: 20px;">remove</span>
+</button>
+<input class="w-full text-center bg-transparent border-none font-button-text text-button-text text-on-surface focus:ring-0 p-0" readonly="" type="text" value="1.0"/>
+<button class="w-[36px] h-full flex items-center justify-center rounded text-primary hover:bg-surface-variant active:bg-surface-dim">
+<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+</button>
+</div>
+</div>
+<!-- Rate Picker -->
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Rate (₹/L)</label>
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface h-[48px] flex items-center px-3">
+<span class="text-on-surface-variant font-button-text">₹</span>
+<input class="w-full h-full bg-transparent border-none text-button-text font-button-text text-on-surface focus:ring-0 text-right" type="number" value="65"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Evening Slot Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-sm overflow-hidden relative">
+<!-- Slot Header -->
+<div class="bg-secondary-container/30 px-stack-md py-stack-sm border-b border-surface-variant flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-secondary-fixed-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dark_mode</span>
+<span class="font-button-text text-button-text">Evening Slot</span>
+</div>
+<!-- Enabled Toggle -->
+<label class="relative inline-flex items-center cursor-pointer h-[32px]">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[6px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="p-stack-md space-y-stack-md">
+<!-- Product Picker -->
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface">
+<select class="w-full h-[48px] pl-4 pr-10 bg-transparent border-none text-body-md text-on-surface focus:ring-0 rounded-lg appearance-none cursor-pointer">
+<option value="cow_milk">Cow Milk (Raw)</option>
+<option selected="" value="buffalo_milk">Buffalo Milk (Raw)</option>
+<option value="a2_milk">A2 Gir Cow Milk</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<div class="grid grid-cols-2 gap-stack-md">
+<!-- Quantity Picker -->
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Quantity (L)</label>
+<div class="flex items-center bg-surface border border-outline-variant rounded-lg h-[48px] p-1">
+<button class="w-[36px] h-full flex items-center justify-center rounded text-primary hover:bg-surface-variant active:bg-surface-dim">
+<span class="material-symbols-outlined" style="font-size: 20px;">remove</span>
+</button>
+<input class="w-full text-center bg-transparent border-none font-button-text text-button-text text-on-surface focus:ring-0 p-0" readonly="" type="text" value="0.5"/>
+<button class="w-[36px] h-full flex items-center justify-center rounded text-primary hover:bg-surface-variant active:bg-surface-dim">
+<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+</button>
+</div>
+</div>
+<!-- Rate Picker -->
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Rate (₹/L)</label>
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface h-[48px] flex items-center px-3">
+<span class="text-on-surface-variant font-button-text">₹</span>
+<input class="w-full h-full bg-transparent border-none text-button-text font-button-text text-on-surface focus:ring-0 text-right" type="number" value="65"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Special Notes -->
+<section class="bg-surface-container-lowest p-stack-md rounded-xl border border-surface-variant shadow-sm">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-2" for="notes">Special Notes (Delivery Instructions)</label>
+<div class="relative focus-ring rounded-lg border border-outline-variant bg-surface transition-colors">
+<textarea class="w-full px-4 py-3 bg-transparent border-none text-body-md text-on-surface placeholder:text-outline focus:ring-0 rounded-lg resize-none" id="notes" placeholder="e.g. Ring doorbell twice, leave bag on handle." rows="3"></textarea>
+</div>
+</section>
+</main>
+<!-- Bottom Fixed Action Area -->
+<div class="fixed bottom-0 left-0 w-full bg-surface border-t border-surface-variant p-gutter shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40 md:hidden pb-safe">
+<button class="w-full h-touch-target-min bg-primary text-on-primary font-button-text text-button-text rounded-full flex items-center justify-center gap-2 hover:bg-surface-tint active:scale-95 transition-all shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 20px;">save</span>
+            Save &amp; Add Customer
+        </button>
+</div>
+</body></html>

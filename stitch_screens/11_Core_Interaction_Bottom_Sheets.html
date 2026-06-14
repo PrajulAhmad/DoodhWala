@@ -1,0 +1,244 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>DoodhWala - Bottom Sheet Dialogs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#2e7d32",
+                        "inverse-primary": "#88d982",
+                        "on-surface": "#181c1e",
+                        "surface-container-high": "#e5e9eb",
+                        "on-primary-fixed-variant": "#005312",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d7dadc",
+                        "surface": "#f7fafc",
+                        "surface-container": "#ebeef0",
+                        "on-secondary-fixed": "#161c27",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#002204",
+                        "on-background": "#181c1e",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed-variant": "#414754",
+                        "surface-tint": "#1b6d24",
+                        "on-surface-variant": "#40493d",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#dde2f3",
+                        "outline": "#707a6c",
+                        "secondary": "#585e6c",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f1f4f6",
+                        "surface-bright": "#f7fafc",
+                        "on-primary-container": "#cbffc2",
+                        "on-secondary-container": "#5e6473",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-container": "#9a6100",
+                        "primary": "#0d631b",
+                        "tertiary": "#794b00",
+                        "on-tertiary-container": "#ffeedf",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-fixed-dim": "#c1c6d7",
+                        "primary-fixed": "#a3f69c",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#88d982",
+                        "background": "#f7fafc",
+                        "secondary-fixed": "#dde2f3",
+                        "outline-variant": "#bfcaba"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "24px",
+                        "base": "4px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "touch-target-min": "48px",
+                        "stack-md": "16px",
+                        "margin": "16px"
+                    },
+                    "fontFamily": {
+                        "button-text": ["Inter"],
+                        "customer-name": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-title": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "button-text": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "customer-name": ["20px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "label-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-title": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Utility styles for the demo layout to show the bottom sheets side-by-side on desktop */
+        body { background-color: #e0e3e5; }
+        .sheet-container {
+            position: relative;
+            height: 800px;
+            width: 100%;
+            max-width: 414px; /* iPhone Max width approx */
+            background-color: #f7fafc;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 20px;
+        }
+        
+        /* Simulating the scrim/backdrop */
+        .scrim {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 40;
+        }
+
+        /* The actual bottom sheet */
+        .bottom-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff; /* Surface Level 1 */
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+            /* Material 3 Bottom Sheet Drag Handle */
+        }
+        
+        .drag-handle {
+            width: 32px;
+            height: 4px;
+            background-color: #707a6c; /* outline */
+            border-radius: 2px;
+            margin: 16px auto;
+        }
+        
+        /* Highlighting active buttons and touches */
+        .btn-active:active {
+            background-color: rgba(13, 99, 27, 0.08); /* Primary 8% */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-wrap justify-center items-start min-h-screen p-4 bg-surface-container-highest">
+<!-- Demo Container 1: Mark Delivered Confirm -->
+
+<!-- Demo Container 2: Skip Confirm -->
+<div class="sheet-container flex flex-col relative">
+<!-- Mock Content -->
+<div class="p-gutter h-full">
+<h2 class="font-display-title text-display-title text-on-surface mb-stack-md">Morning Route</h2>
+<div class="bg-surface-container-low p-gutter rounded-xl mb-stack-sm border border-outline-variant">
+<p class="font-customer-name text-customer-name text-on-surface">Priya Sharma</p>
+<p class="font-body-md text-body-md text-on-surface-variant">1.5L Buffalo Milk</p>
+</div>
+<!-- Mock Button to trigger -->
+<button class="w-full h-touch-target-min bg-surface text-on-surface border border-outline font-button-text text-button-text rounded-full mt-auto mb-20 shadow-sm">Skip</button>
+</div>
+<!-- Scrim -->
+<div class="scrim"></div>
+<!-- Bottom Sheet: Skip Confirm -->
+<div class="bottom-sheet flex flex-col border-t border-outline-variant shadow-lg shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<div class="drag-handle"></div>
+<div class="px-gutter pb-gutter">
+<h3 class="font-customer-name text-customer-name text-on-surface mb-stack-sm">Skip for Morning?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">
+                    This will remove the delivery from today's morning route.
+                </p>
+<div class="mb-stack-lg">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-base" for="skip-notes">Optional Notes</label>
+<textarea class="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-lg p-stack-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-0 transition-colors resize-none placeholder:text-on-surface-variant/50" id="skip-notes" placeholder="e.g., Customer is out of town..." rows="2"></textarea>
+</div>
+<div class="flex gap-stack-sm">
+<button class="flex-1 h-touch-target-min bg-surface text-primary border border-outline font-button-text text-button-text rounded-full flex items-center justify-center btn-active transition-colors">
+                        Cancel
+                    </button>
+<button class="flex-1 h-touch-target-min bg-error text-on-error font-button-text text-button-text rounded-full flex items-center justify-center btn-active transition-colors">
+                        Skip Shift
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Demo Container 3: Edit Delivery -->
+<div class="sheet-container flex flex-col relative">
+<!-- Mock Content -->
+<div class="p-gutter h-full">
+<h2 class="font-display-title text-display-title text-on-surface mb-stack-md">Morning Route</h2>
+<div class="bg-surface-container-low p-gutter rounded-xl mb-stack-sm border border-outline-variant">
+<p class="font-customer-name text-customer-name text-on-surface">Rajesh Gupta</p>
+<div class="flex items-center justify-between mt-stack-sm">
+<p class="font-body-md text-body-md text-on-surface-variant">1.5L Buffalo Milk</p>
+<button class="h-10 px-4 bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">Edit</button>
+</div>
+</div>
+</div>
+<!-- Scrim -->
+<div class="scrim"></div>
+<!-- Bottom Sheet: Edit Delivery -->
+<div class="bottom-sheet flex flex-col border-t border-outline-variant shadow-lg shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<div class="drag-handle"></div>
+<div class="px-gutter pb-gutter">
+<div class="flex justify-between items-center mb-stack-lg">
+<h3 class="font-customer-name text-customer-name text-on-surface">Edit Volume</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Rajesh Gupta</p>
+</div>
+<!-- Volume Steppers Row -->
+<div class="flex items-center justify-between bg-surface-container-low rounded-xl p-stack-sm mb-stack-lg border border-outline-variant">
+<button class="w-12 h-12 flex items-center justify-center bg-surface border border-outline-variant rounded-lg text-on-surface font-label-sm text-label-sm btn-active">-0.50</button>
+<button class="w-12 h-12 flex items-center justify-center bg-surface border border-outline-variant rounded-lg text-on-surface font-label-sm text-label-sm btn-active">-0.25</button>
+<div class="flex flex-col items-center justify-center min-w-[80px]">
+<span class="font-display-title text-display-title text-primary">1.50</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Liters</span>
+</div>
+<button class="w-12 h-12 flex items-center justify-center bg-surface border border-outline-variant rounded-lg text-on-surface font-label-sm text-label-sm btn-active">+0.25</button>
+<button class="w-12 h-12 flex items-center justify-center bg-surface border border-outline-variant rounded-lg text-on-surface font-label-sm text-label-sm btn-active">+0.50</button>
+</div>
+<!-- Explicit warning for modified volume -->
+<div class="flex items-start bg-secondary-container rounded-lg p-stack-sm mb-stack-lg">
+<span class="material-symbols-outlined text-on-secondary-container mr-stack-sm mt-1" style="font-variation-settings: 'FILL' 0;">info</span>
+<p class="font-label-sm text-label-sm text-on-secondary-container">Billing will be automatically adjusted for this shift.</p>
+</div>
+<div class="flex gap-stack-sm">
+<button class="flex-1 h-touch-target-min bg-surface text-primary border border-outline font-button-text text-button-text rounded-full flex items-center justify-center btn-active transition-colors">
+                        Cancel
+                    </button>
+<button class="flex-1 h-touch-target-min bg-primary text-on-primary font-button-text text-button-text rounded-full flex items-center justify-center btn-active transition-colors">
+                        Save
+                    </button>
+</div>
+</div>
+</div>
+</div>
+
+
+</body></html>

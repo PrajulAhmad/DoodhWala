@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Verify OTP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#585e6c",
+                        "tertiary-container": "#9a6100",
+                        "primary": "#0d631b",
+                        "outline-variant": "#bfcaba",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f7fafc",
+                        "on-secondary-container": "#5e6473",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#794b00",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d7dadc",
+                        "surface-container-low": "#f1f4f6",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-container": "#2e7d32",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary-fixed-variant": "#005312",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#1b6d24",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#88d982",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#002204",
+                        "on-secondary-fixed": "#161c27",
+                        "surface": "#f7fafc",
+                        "on-primary-container": "#cbffc2",
+                        "on-surface": "#181c1e",
+                        "inverse-primary": "#88d982",
+                        "on-surface-variant": "#40493d",
+                        "secondary-fixed": "#dde2f3",
+                        "background": "#f7fafc",
+                        "surface-container-high": "#e5e9eb",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-error": "#ffffff",
+                        "surface-container": "#ebeef0",
+                        "secondary-fixed-dim": "#c1c6d7",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#707a6c",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-fixed": "#a3f69c",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-fixed-variant": "#414754",
+                        "on-background": "#181c1e",
+                        "on-tertiary-container": "#ffeedf",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#dde2f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "24px",
+                        "touch-target-min": "48px",
+                        "base": "4px",
+                        "gutter": "16px",
+                        "margin": "16px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-title": ["Inter"],
+                        "customer-name": ["Inter"],
+                        "button-text": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "display-title": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "customer-name": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "button-text": ["16px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom styles to hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background h-screen flex flex-col font-body-md overflow-hidden antialiased">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-gutter w-full h-touch-target-min bg-surface dark:bg-background">
+<button class="flex items-center justify-center w-10 h-10 rounded-full text-on-surface-variant hover:bg-primary/8 transition-transform duration-100 active:scale-95" type="button">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<div class="flex-1"></div>
+<div class="w-10"></div> <!-- Placeholder for balance -->
+</header>
+<!-- Main Content Canvas (Transactional intent, suppressed nav shell) -->
+<main class="flex-1 flex flex-col px-gutter pt-stack-lg pb-stack-md w-full max-w-md mx-auto">
+<!-- Header Section -->
+<div class="mb-stack-lg flex flex-col items-center text-center">
+<h1 class="font-display-title text-display-title text-primary mb-stack-sm">Verify OTP</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Sent to <span class="font-button-text text-button-text text-on-background">+91 98765 43210</span></p>
+</div>
+<!-- Spacer to push content to the 60% thumb reach zone -->
+<div class="flex-1"></div>
+<!-- Interactive Zone (Lower 60%) -->
+<div class="w-full flex flex-col items-center justify-end pb-stack-lg">
+<!-- OTP Entry Matrix -->
+<!-- Demonstration of Normal State (first 3) and Error State (last 3 for visual example of the requirement) -->
+<div class="flex flex-col items-center w-full mb-stack-lg gap-y-2">
+<div class="flex justify-between w-full max-w-xs gap-2">
+<!-- Normal Input -->
+<input aria-label="Digit 1" class="w-12 h-12 text-center font-display-title text-display-title text-on-surface bg-surface-container-lowest border-2 border-outline-variant rounded focus:border-primary focus:outline-none focus:ring-0 transition-colors shadow-sm" maxlength="1" pattern="\d*" type="number" value="4"/>
+<input aria-label="Digit 2" class="w-12 h-12 text-center font-display-title text-display-title text-on-surface bg-surface-container-lowest border-2 border-outline-variant rounded focus:border-primary focus:outline-none focus:ring-0 transition-colors shadow-sm" maxlength="1" pattern="\d*" type="number" value="8"/>
+<input aria-label="Digit 3" class="w-12 h-12 text-center font-display-title text-display-title text-on-surface bg-surface-container-lowest border-2 border-outline-variant rounded focus:border-primary focus:outline-none focus:ring-0 transition-colors shadow-sm" maxlength="1" pattern="\d*" type="number" value="1"/>
+<!-- Error State Demonstration Inputs -->
+<input aria-label="Digit 4" class="w-12 h-12 text-center font-display-title text-display-title text-error bg-error-container/20 border-2 border-error rounded focus:outline-none focus:ring-0 transition-colors shadow-sm" maxlength="1" pattern="\d*" type="number" value="9"/>
+<input aria-label="Digit 5" class="w-12 h-12 text-center font-display-title text-display-title text-error bg-error-container/20 border-2 border-error rounded focus:outline-none focus:ring-0 transition-colors shadow-sm" maxlength="1" pattern="\d*" type="number" value=""/>
+<input aria-label="Digit 6" class="w-12 h-12 text-center font-display-title text-display-title text-error bg-error-container/20 border-2 border-error rounded focus:outline-none focus:ring-0 transition-colors shadow-sm" maxlength="1" pattern="\d*" type="number" value=""/>
+</div>
+<!-- Error Message associated with Error State -->
+<p class="font-label-sm text-label-sm text-error flex items-center gap-1 opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">error</span>
+                    Invalid code entered.
+                </p>
+</div>
+<!-- Resend Action -->
+<div class="mb-stack-lg">
+<button class="font-button-text text-button-text text-primary hover:text-primary-container active:scale-95 transition-all h-touch-target-min px-4 rounded flex items-center justify-center" type="button">
+                    Resend OTP
+                </button>
+</div>
+<!-- Primary Action Button (Disabled state shown as per requirements: "disabled until 6 digits entered") -->
+<button class="w-full h-14 rounded-lg bg-surface-container-high text-on-surface-variant font-button-text text-button-text flex items-center justify-center cursor-not-allowed opacity-70 transition-colors" disabled="" type="button">
+                Verify
+            </button>
+<!-- Hidden active state for structural reference if needed later: 
+            <button type="button" class="w-full h-14 rounded-lg bg-primary text-on-primary font-button-text text-button-text flex items-center justify-center hover:bg-primary-container active:scale-95 transition-all shadow-sm">
+                Verify
+            </button>
+            -->
+</div>
+</main>
+<!-- Note: BottomNavBar and FAB suppressed due to Transactional Intent of OTP Screen -->
+<script>
+        // Simple script to auto-focus next input for demonstration purposes
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+    </script>
+</body></html>

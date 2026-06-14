@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DoodhWala - Route List Loading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#2e7d32",
+                        "inverse-primary": "#88d982",
+                        "on-surface": "#181c1e",
+                        "surface-container-high": "#e5e9eb",
+                        "on-primary-fixed-variant": "#005312",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d7dadc",
+                        "surface": "#f7fafc",
+                        "surface-container": "#ebeef0",
+                        "on-secondary-fixed": "#161c27",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#002204",
+                        "on-background": "#181c1e",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed-variant": "#414754",
+                        "surface-tint": "#1b6d24",
+                        "on-surface-variant": "#40493d",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#dde2f3",
+                        "outline": "#707a6c",
+                        "secondary": "#585e6c",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f1f4f6",
+                        "surface-bright": "#f7fafc",
+                        "on-primary-container": "#cbffc2",
+                        "on-secondary-container": "#5e6473",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-container": "#9a6100",
+                        "primary": "#0d631b",
+                        "tertiary": "#794b00",
+                        "on-tertiary-container": "#ffeedf",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-fixed-dim": "#c1c6d7",
+                        "primary-fixed": "#a3f69c",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#88d982",
+                        "background": "#f7fafc",
+                        "secondary-fixed": "#dde2f3",
+                        "outline-variant": "#bfcaba"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "24px",
+                        "base": "4px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "touch-target-min": "48px",
+                        "stack-md": "16px",
+                        "margin": "16px"
+                    },
+                    "fontFamily": {
+                        "button-text": ["Inter"],
+                        "customer-name": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-title": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "button-text": ["16px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "customer-name": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "display-title": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    },
+                    "animation": {
+                        "shimmer": "shimmer 1.5s infinite linear"
+                    },
+                    "keyframes": {
+                        "shimmer": {
+                            "0%": { "backgroundPosition": "-1000px 0" },
+                            "100%": { "backgroundPosition": "1000px 0" }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .skeleton-shimmer {
+            background: linear-gradient(to right, #e0e3e5 8%, #f1f4f6 18%, #e0e3e5 33%);
+            background-size: 2000px 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-gutter w-full h-touch-target-min bg-surface dark:bg-background">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim mr-2 hover:bg-primary/8 dark:hover:bg-primary-fixed-dim/8 rounded-full p-2 scale-95 transition-transform duration-100" data-icon="local_shipping">local_shipping</span>
+<h1 class="font-display-title text-display-title text-primary dark:text-primary-fixed-dim font-bold tracking-tight">DoodhWala</h1>
+</div>
+<div>
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim hover:bg-primary/8 dark:hover:bg-primary-fixed-dim/8 rounded-full p-2 scale-95 transition-transform duration-100" data-icon="search">search</span>
+</div>
+</header>
+<!-- Main Content Canvas (Loading State) -->
+<main class="flex-grow px-gutter pt-4 pb-24 overflow-y-auto">
+<!-- Controls Skeleton -->
+<div class="flex justify-between items-center mb-6">
+<div class="skeleton-shimmer h-10 w-32 rounded-full"></div>
+<div class="skeleton-shimmer h-10 w-24 rounded-lg"></div>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Skeleton Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-surface-variant flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="skeleton-shimmer h-8 w-8 rounded-full flex-shrink-0"></div>
+<div class="flex flex-col gap-2">
+<div class="skeleton-shimmer h-5 w-40 rounded"></div>
+<div class="skeleton-shimmer h-4 w-24 rounded"></div>
+</div>
+</div>
+<div class="skeleton-shimmer h-6 w-16 rounded-full"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div class="skeleton-shimmer h-12 w-28 rounded-lg"></div>
+<div class="skeleton-shimmer h-12 w-12 rounded-lg"></div>
+</div>
+</div>
+<!-- Skeleton Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-surface-variant flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="skeleton-shimmer h-8 w-8 rounded-full flex-shrink-0"></div>
+<div class="flex flex-col gap-2">
+<div class="skeleton-shimmer h-5 w-48 rounded"></div>
+<div class="skeleton-shimmer h-4 w-32 rounded"></div>
+</div>
+</div>
+<div class="skeleton-shimmer h-6 w-20 rounded-full"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div class="skeleton-shimmer h-12 w-28 rounded-lg"></div>
+<div class="skeleton-shimmer h-12 w-12 rounded-lg"></div>
+</div>
+</div>
+<!-- Skeleton Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-surface-variant flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="skeleton-shimmer h-8 w-8 rounded-full flex-shrink-0"></div>
+<div class="flex flex-col gap-2">
+<div class="skeleton-shimmer h-5 w-36 rounded"></div>
+<div class="skeleton-shimmer h-4 w-20 rounded"></div>
+</div>
+</div>
+<div class="skeleton-shimmer h-6 w-16 rounded-full"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div class="skeleton-shimmer h-12 w-28 rounded-lg"></div>
+<div class="skeleton-shimmer h-12 w-12 rounded-lg"></div>
+</div>
+</div>
+<!-- Skeleton Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-surface-variant flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="skeleton-shimmer h-8 w-8 rounded-full flex-shrink-0"></div>
+<div class="flex flex-col gap-2">
+<div class="skeleton-shimmer h-5 w-44 rounded"></div>
+<div class="skeleton-shimmer h-4 w-28 rounded"></div>
+</div>
+</div>
+<div class="skeleton-shimmer h-6 w-24 rounded-full"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div class="skeleton-shimmer h-12 w-28 rounded-lg"></div>
+<div class="skeleton-shimmer h-12 w-12 rounded-lg"></div>
+</div>
+</div>
+<!-- Skeleton Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-surface-variant flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="skeleton-shimmer h-8 w-8 rounded-full flex-shrink-0"></div>
+<div class="flex flex-col gap-2">
+<div class="skeleton-shimmer h-5 w-32 rounded"></div>
+<div class="skeleton-shimmer h-4 w-24 rounded"></div>
+</div>
+</div>
+<div class="skeleton-shimmer h-6 w-16 rounded-full"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div class="skeleton-shimmer h-12 w-28 rounded-lg"></div>
+<div class="skeleton-shimmer h-12 w-12 rounded-lg"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-base py-stack-sm bg-surface dark:bg-background border-t border-outline-variant dark:border-outline md:hidden">
+<!-- Home (Active Semantic Intent for Route List) -->
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="route">route</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</div>
+<!-- Customers -->
+<div class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim rounded-full px-4 py-1 active:scale-90 transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-sm text-label-sm mt-1">Customers</span>
+</div>
+<!-- Billing -->
+<div class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim rounded-full px-4 py-1 active:scale-90 transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm mt-1">Billing</span>
+</div>
+<!-- Payments -->
+<div class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim rounded-full px-4 py-1 active:scale-90 transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-sm text-label-sm mt-1">Payments</span>
+</div>
+<!-- Settings -->
+<div class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim rounded-full px-4 py-1 active:scale-90 transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

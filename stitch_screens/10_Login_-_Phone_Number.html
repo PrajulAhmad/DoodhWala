@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DoodhWala - Phone Collection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#585e6c",
+                        "tertiary-container": "#9a6100",
+                        "primary": "#0d631b",
+                        "outline-variant": "#bfcaba",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f7fafc",
+                        "on-secondary-container": "#5e6473",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#794b00",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d7dadc",
+                        "surface-container-low": "#f1f4f6",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-container": "#2e7d32",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary-fixed-variant": "#005312",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#1b6d24",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#88d982",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#002204",
+                        "on-secondary-fixed": "#161c27",
+                        "surface": "#f7fafc",
+                        "on-primary-container": "#cbffc2",
+                        "on-surface": "#181c1e",
+                        "inverse-primary": "#88d982",
+                        "on-surface-variant": "#40493d",
+                        "secondary-fixed": "#dde2f3",
+                        "background": "#f7fafc",
+                        "surface-container-high": "#e5e9eb",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-error": "#ffffff",
+                        "surface-container": "#ebeef0",
+                        "secondary-fixed-dim": "#c1c6d7",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#707a6c",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-fixed": "#a3f69c",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-fixed-variant": "#414754",
+                        "on-background": "#181c1e",
+                        "on-tertiary-container": "#ffeedf",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#dde2f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "24px",
+                        "touch-target-min": "48px",
+                        "base": "4px",
+                        "gutter": "16px",
+                        "margin": "16px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-title": ["Inter"],
+                        "customer-name": ["Inter"],
+                        "button-text": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-title": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "customer-name": ["20px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "button-text": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 24px;
+            height: 24px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Suppressed: Linear/Transactional Intent (Login/Onboarding) -->
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col px-gutter pt-12 pb-8 relative">
+<!-- Header Section -->
+<div class="mb-stack-lg">
+<h1 class="font-display-title text-display-title text-primary mb-stack-sm">Welcome to DoodhWala.</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter your phone number to start your delivery run.</p>
+</div>
+<!-- 60% Rule Area: Bottom-heavy layout for one-handed use -->
+<div class="mt-auto flex flex-col justify-end w-full max-w-md mx-auto h-full space-y-stack-lg relative z-10">
+<!-- Input Field Group -->
+<div class="w-full">
+<label class="sr-only" for="phone-input">Phone Number</label>
+<div class="relative flex items-center bg-surface-container-lowest rounded-lg border-2 border-primary shadow-sm focus-within:ring-2 focus-within:ring-primary-container overflow-hidden">
+<div class="pl-4 pr-2 flex items-center justify-center border-r border-outline-variant h-touch-target-min">
+<span class="font-button-text text-button-text text-on-surface">+91</span>
+</div>
+<input autofocus="" class="w-full h-touch-target-min border-none bg-transparent text-customer-name font-customer-name text-on-surface focus:ring-0 px-4 placeholder:text-outline" id="phone-input" inputmode="numeric" pattern="[0-9]*" placeholder="00000 00000" type="number"/>
+<div class="pr-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">phone_iphone</span>
+</div>
+</div>
+<p class="mt-2 font-label-sm text-label-sm text-on-surface-variant px-1">An OTP will be sent to this number for verification.</p>
+</div>
+<!-- Action Area -->
+<div class="w-full space-y-4">
+<!-- Primary Action Button (Default State) -->
+<!-- Note: In a real app, JS would toggle visibility between these buttons -->
+<button class="w-full h-touch-target-min flex items-center justify-center bg-primary text-on-primary font-button-text text-button-text rounded-lg active:bg-primary-container active:scale-[0.98] transition-all duration-100 ease-in-out shadow-sm border border-transparent" type="button">
+                    Receive Verification OTP
+                </button>
+<!-- Alternate State: Loading Spinner -->
+<div class="hidden">
+<button class="w-full h-touch-target-min flex items-center justify-center bg-primary-container text-on-primary-container font-button-text text-button-text rounded-lg opacity-90 cursor-wait" disabled="" type="button">
+<div class="loading-spinner mr-3"></div>
+                        Sending...
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Suppressed: Linear/Transactional Intent (Login/Onboarding) -->
+<script>
+        // Auto-focus input on load for immediate interaction
+        window.onload = function() {
+            const phoneInput = document.getElementById('phone-input');
+            if(phoneInput) {
+                phoneInput.focus();
+            }
+        };
+
+        // Simple format for visual feedback (e.g., adding space after 5 digits)
+        const input = document.getElementById('phone-input');
+        input.addEventListener('input', function(e) {
+            // Remove non-numeric characters for processing
+            let value = e.target.value.replace(/\D/g, '');
+            // Limit to 10 digits typical for India (+91)
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+            e.target.value = value;
+        });
+    </script>
+</body></html>

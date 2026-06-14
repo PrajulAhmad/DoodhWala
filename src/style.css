@@ -1,0 +1,135 @@
+/* 🥛 DoodhWala Core Design Tokens & Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* --- Fonts --- */
+  --font-family: 'Inter', sans-serif;
+
+  /* --- Colors (Utility & Contrast Optimized) --- */
+  --background: #f7fafc;
+  --on-background: #181c1e;
+
+  --primary: #0d631b;
+  --primary-container: #2e7d32;
+  --on-primary: #ffffff;
+  --on-primary-container: #cbffc2;
+  --on-primary-fixed: #002204;
+  --on-primary-fixed-variant: #005312;
+
+  --secondary: #585e6c;
+  --secondary-container: #dde2f3;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #5e6473;
+
+  --tertiary: #794b00;
+  --tertiary-container: #9a6100;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #ffeedf;
+
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error: #ffffff;
+  --on-error-container: #93000a;
+
+  /* Surface Hierarchy (Tonal Layering instead of Shadows) */
+  --surface: #f7fafc;
+  --surface-dim: #d7dadc;
+  --surface-bright: #f7fafc;
+  --surface-container-lowest: #ffffff;  /* Base for delivery card content */
+  --surface-container-low: #f1f4f6;     /* Drawer/well backgrounds */
+  --surface-container: #ebeef0;
+  --surface-container-high: #e5e9eb;
+  --surface-container-highest: #e0e3e5;
+  --on-surface: #181c1e;
+  --on-surface-variant: #40493d;
+
+  /* Borders & Dividers */
+  --outline: #707a6c;
+  --outline-variant: #bfcaba;
+
+  /* --- Corner Roundness (Shape) --- */
+  --radius-sm: 0.25rem;       /* 4px */
+  --radius-default: 0.5rem;   /* 8px - Interactive elements */
+  --radius-md: 0.75rem;      /* 12px */
+  --radius-lg: 1rem;         /* 16px */
+  --radius-xl: 1.5rem;       /* 24px */
+  --radius-full: 9999px;      /* Pill shape / circles */
+
+  /* --- Spacing System --- */
+  --spacing-base: 4px;
+  --spacing-gutter: 16px;
+  --spacing-margin: 16px;
+  --spacing-touch-target-min: 48px;  /* Accessibility minimum */
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 24px;
+}
+
+/* --- Base Typography Utility Classes --- */
+.font-display-title {
+  font-family: var(--font-family);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+}
+
+.font-customer-name {
+  font-family: var(--font-family);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.font-body-md {
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.font-label-sm {
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.02em;
+}
+
+.font-button-text {
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+}
+
+/* --- Common Base Resets & Layout Utilities --- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--on-background);
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+}
+
+/* Enforcing minimum touch target accessibility */
+.touch-target {
+  min-height: var(--spacing-touch-target-min);
+  min-width: var(--spacing-touch-target-min);
+}
+
+/* 1px Subdued border style as per design instructions */
+.card-border {
+  border: 1px solid var(--outline-variant);
+}
+
+/* Tonal shift for active click/press states without raising elevation */
+.btn-tonal-press:active {
+  background-color: rgba(13, 99, 27, 0.08); /* Primary at 8% opacity */
+}

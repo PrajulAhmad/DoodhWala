@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DoodhWala</title>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN and custom theme configuration matching Stitch -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0d631b",
+              "primary-container": "#2e7d32",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#cbffc2",
+              "on-primary-fixed": "#002204",
+              "on-primary-fixed-variant": "#005312",
+              "secondary": "#585e6c",
+              "secondary-container": "#dde2f3",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#5e6473",
+              "on-secondary-fixed": "#161c27",
+              "on-secondary-fixed-variant": "#414754",
+              "tertiary": "#794b00",
+              "tertiary-container": "#9a6100",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-container": "#ffeedf",
+              "on-tertiary-fixed": "#2a1700",
+              "on-tertiary-fixed-variant": "#653e00",
+              "error": "#ba1a1a",
+              "error-container": "#ffdad6",
+              "on-error": "#ffffff",
+              "on-error-container": "#93000a",
+              "background": "#f7fafc",
+              "on-background": "#181c1e",
+              "surface": "#f7fafc",
+              "surface-bright": "#f7fafc",
+              "surface-dim": "#d7dadc",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f1f4f6",
+              "surface-container": "#ebeef0",
+              "surface-container-high": "#e5e9eb",
+              "surface-container-highest": "#e0e3e5",
+              "on-surface": "#181c1e",
+              "on-surface-variant": "#40493d",
+              "outline": "#707a6c",
+              "outline-variant": "#bfcaba",
+              "inverse-surface": "#2d3133",
+              "inverse-on-surface": "#eef1f3",
+              "inverse-primary": "#88d982",
+              "surface-variant": "#e0e3e5",
+              "surface-tint": "#1b6d24"
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+            spacing: {
+              "gutter": "16px",
+              "margin": "16px",
+              "touch-target-min": "48px",
+              "stack-sm": "8px",
+              "stack-md": "16px",
+              "stack-lg": "24px",
+              "base": "4px"
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

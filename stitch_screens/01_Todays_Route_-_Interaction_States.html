@@ -1,0 +1,334 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Today's Route - DoodhWala</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e5e9eb",
+                        "on-background": "#181c1e",
+                        "on-surface": "#181c1e",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-tint": "#1b6d24",
+                        "tertiary": "#794b00",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#bfcaba",
+                        "on-secondary-fixed-variant": "#414754",
+                        "secondary-fixed-dim": "#c1c6d7",
+                        "error": "#ba1a1a",
+                        "outline": "#707a6c",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#005312",
+                        "primary": "#0d631b",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary-container": "#dde2f3",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#88d982",
+                        "primary-container": "#2e7d32",
+                        "tertiary-container": "#9a6100",
+                        "on-secondary-fixed": "#161c27",
+                        "on-primary-container": "#cbffc2",
+                        "on-secondary-container": "#5e6473",
+                        "on-primary": "#ffffff",
+                        "surface": "#f7fafc",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed": "#a3f69c",
+                        "surface-container-low": "#f1f4f6",
+                        "background": "#f7fafc",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-primary-fixed": "#002204",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "inverse-primary": "#88d982",
+                        "secondary-fixed": "#dde2f3",
+                        "on-tertiary-container": "#ffeedf",
+                        "surface-variant": "#e0e3e5",
+                        "on-surface-variant": "#40493d",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d7dadc",
+                        "surface-container": "#ebeef0",
+                        "surface-bright": "#f7fafc",
+                        "secondary": "#585e6c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "gutter": "16px",
+                        "touch-target-min": "48px",
+                        "stack-sm": "8px",
+                        "margin": "16px",
+                        "base": "4px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "display-title": ["Inter"],
+                        "customer-name": ["Inter"],
+                        "button-text": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-title": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "customer-name": ["20px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "button-text": ["16px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "label-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar hiding for horizontal chip list */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Emulating 4dp left indicator bar as per instructions */
+        .indicator-red { box-shadow: inset 4px 0 0 0 #ba1a1a; }
+        .indicator-green { box-shadow: inset 4px 0 0 0 #0d631b; }
+        
+        /* Bottom padding for content to clear fixed bottom nav */
+        main { padding-bottom: 90px; }
+    </style>
+<style data-stitch-css-vh="
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  ">
+    body {
+      min-height: max(884px, 884px);
+    }
+  </style>
+  <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}[type='text'],input:where(:not([type])),[type='email'],[type='url'],[type='password'],[type='number'],[type='date'],[type='datetime-local'],[type='month'],[type='search'],[type='tel'],[type='time'],[type='week'],[multiple],textarea,select{-webkit-appearance:none;appearance:none;background-color:#fff;border-color:#6b7280;border-width:1px;border-radius:0px;padding-top:0.5rem;padding-right:0.75rem;padding-bottom:0.5rem;padding-left:0.75rem;font-size:1rem;line-height:1.5rem;--tw-shadow:0 0 #0000;}[type='text']:focus, input:where(:not([type])):focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus{outline:2px solid transparent;outline-offset:2px;--tw-ring-inset:var(--tw-empty,/*!*/ /*!*/);--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:#2563eb;--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);border-color:#2563eb}input::placeholder,textarea::placeholder{color:#6b7280;opacity:1}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-date-and-time-value{min-height:1.5em;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit,::-webkit-datetime-edit-year-field,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute-field,::-webkit-datetime-edit-second-field,::-webkit-datetime-edit-millisecond-field,::-webkit-datetime-edit-meridiem-field{padding-top:0;padding-bottom:0}select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 0.5rem center;background-repeat:no-repeat;background-size:1.5em 1.5em;padding-right:2.5rem;print-color-adjust:exact}[multiple],[size]:where(select:not([size="1"])){background-image:initial;background-position:initial;background-repeat:unset;background-size:initial;padding-right:0.75rem;print-color-adjust:unset}[type='checkbox'],[type='radio']{-webkit-appearance:none;appearance:none;padding:0;print-color-adjust:exact;display:inline-block;vertical-align:middle;background-origin:border-box;-webkit-user-select:none;user-select:none;flex-shrink:0;height:1rem;width:1rem;color:#2563eb;background-color:#fff;border-color:#6b7280;border-width:1px;--tw-shadow:0 0 #0000}[type='checkbox']{border-radius:0px}[type='radio']{border-radius:100%}[type='checkbox']:focus,[type='radio']:focus{outline:2px solid transparent;outline-offset:2px;--tw-ring-inset:var(--tw-empty,/*!*/ /*!*/);--tw-ring-offset-width:2px;--tw-ring-offset-color:#fff;--tw-ring-color:#2563eb;--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}[type='checkbox']:checked,[type='radio']:checked{border-color:transparent;background-color:currentColor;background-size:100% 100%;background-position:center;background-repeat:no-repeat}[type='checkbox']:checked{background-image:url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");}@media (forced-colors: active) {[type='checkbox']:checked{-webkit-appearance:auto;appearance:auto}}[type='radio']:checked{background-image:url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");}@media (forced-colors: active) {[type='radio']:checked{-webkit-appearance:auto;appearance:auto}}[type='checkbox']:checked:hover,[type='checkbox']:checked:focus,[type='radio']:checked:hover,[type='radio']:checked:focus{border-color:transparent;background-color:currentColor}[type='checkbox']:indeterminate{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");border-color:transparent;background-color:currentColor;background-size:100% 100%;background-position:center;background-repeat:no-repeat;}@media (forced-colors: active) {[type='checkbox']:indeterminate{-webkit-appearance:auto;appearance:auto}}[type='checkbox']:indeterminate:hover,[type='checkbox']:indeterminate:focus{border-color:transparent;background-color:currentColor}[type='file']{background:unset;border-color:inherit;border-width:0;border-radius:0;padding:0;font-size:unset;line-height:inherit}[type='file']:focus{outline:1px solid ButtonText;outline:1px auto -webkit-focus-ring-color}.fixed{position:fixed}.relative{position:relative}.sticky{position:sticky}.bottom-0{bottom:0px}.top-0{top:0px}.top-\[48px\]{top:48px}.z-40{z-index:40}.z-50{z-index:50}.z-\[60\]{z-index:60}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-6{margin-bottom:1.5rem}.mb-stack-md{margin-bottom:16px}.mr-1{margin-right:0.25rem}.mr-2{margin-right:0.5rem}.mr-3{margin-right:0.75rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.block{display:block}.flex{display:flex}.h-10{height:2.5rem}.h-12{height:3rem}.h-touch-target-min{height:48px}.w-10{width:2.5rem}.w-12{width:3rem}.w-\[64px\]{width:64px}.w-fit{width:-moz-fit-content;width:fit-content}.w-full{width:100%}.w-touch-target-min{width:48px}.max-w-\[280px\]{max-width:280px}.flex-1{flex:1 1 0%}.flex-\[2\]{flex:2}.scale-95{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.space-x-2 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.5rem * var(--tw-space-x-reverse));margin-left:calc(0.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-stack-md > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(16px * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(16px * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-x-hidden{overflow-x:hidden}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-\[\#A5D6A7\]{--tw-border-opacity:1;border-color:rgb(165 214 167 / var(--tw-border-opacity, 1))}.border-error{--tw-border-opacity:1;border-color:rgb(186 26 26 / var(--tw-border-opacity, 1))}.border-outline-variant{--tw-border-opacity:1;border-color:rgb(191 202 186 / var(--tw-border-opacity, 1))}.border-primary-container{--tw-border-opacity:1;border-color:rgb(46 125 50 / var(--tw-border-opacity, 1))}.border-surface-variant{--tw-border-opacity:1;border-color:rgb(224 227 229 / var(--tw-border-opacity, 1))}.bg-\[\#C8E6C9\]{--tw-bg-opacity:1;background-color:rgb(200 230 201 / var(--tw-bg-opacity, 1))}.bg-\[\#E8F5E9\]{--tw-bg-opacity:1;background-color:rgb(232 245 233 / var(--tw-bg-opacity, 1))}.bg-\[\#FEE2E2\]{--tw-bg-opacity:1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-\[\#FFB95F\]{--tw-bg-opacity:1;background-color:rgb(255 185 95 / var(--tw-bg-opacity, 1))}.bg-\[\#FFeedf\]{--tw-bg-opacity:1;background-color:rgb(255 238 223 / var(--tw-bg-opacity, 1))}.bg-error{--tw-bg-opacity:1;background-color:rgb(186 26 26 / var(--tw-bg-opacity, 1))}.bg-primary{--tw-bg-opacity:1;background-color:rgb(13 99 27 / var(--tw-bg-opacity, 1))}.bg-primary-container{--tw-bg-opacity:1;background-color:rgb(46 125 50 / var(--tw-bg-opacity, 1))}.bg-surface{--tw-bg-opacity:1;background-color:rgb(247 250 252 / var(--tw-bg-opacity, 1))}.bg-surface-container{--tw-bg-opacity:1;background-color:rgb(235 238 240 / var(--tw-bg-opacity, 1))}.bg-surface-container-low{--tw-bg-opacity:1;background-color:rgb(241 244 246 / var(--tw-bg-opacity, 1))}.bg-surface-container-lowest{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-surface-dim{--tw-bg-opacity:1;background-color:rgb(215 218 220 / var(--tw-bg-opacity, 1))}.bg-surface-variant{--tw-bg-opacity:1;background-color:rgb(224 227 229 / var(--tw-bg-opacity, 1))}.bg-transparent{background-color:transparent}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-gutter{padding:16px}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-4{padding-left:1rem;padding-right:1rem}.px-base{padding-left:4px;padding-right:4px}.px-gutter{padding-left:16px;padding-right:16px}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-stack-sm{padding-top:8px;padding-bottom:8px}.pb-1{padding-bottom:0.25rem}.pb-stack-md{padding-bottom:16px}.text-center{text-align:center}.font-body-md{font-family:Inter}.font-button-text{font-family:Inter}.font-customer-name{font-family:Inter}.font-display-title{font-family:Inter}.font-label-sm{font-family:Inter}.text-\[12px\]{font-size:12px}.text-\[16px\]{font-size:16px}.text-\[18px\]{font-size:18px}.text-button-text{font-size:16px;line-height:20px;letter-spacing:0.01em;font-weight:600}.text-customer-name{font-size:20px;line-height:28px;font-weight:700}.text-display-title{font-size:24px;line-height:32px;letter-spacing:-0.01em;font-weight:700}.text-label-sm{font-size:14px;line-height:20px;letter-spacing:0.02em;font-weight:500}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.leading-tight{line-height:1.25}.text-\[\#2A1700\]{--tw-text-opacity:1;color:rgb(42 23 0 / var(--tw-text-opacity, 1))}.text-error{--tw-text-opacity:1;color:rgb(186 26 26 / var(--tw-text-opacity, 1))}.text-on-error{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-on-primary{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-on-primary-container{--tw-text-opacity:1;color:rgb(203 255 194 / var(--tw-text-opacity, 1))}.text-on-secondary-container{--tw-text-opacity:1;color:rgb(94 100 115 / var(--tw-text-opacity, 1))}.text-on-surface{--tw-text-opacity:1;color:rgb(24 28 30 / var(--tw-text-opacity, 1))}.text-on-surface-variant{--tw-text-opacity:1;color:rgb(64 73 61 / var(--tw-text-opacity, 1))}.text-primary{--tw-text-opacity:1;color:rgb(13 99 27 / var(--tw-text-opacity, 1))}.text-tertiary-container{--tw-text-opacity:1;color:rgb(154 97 0 / var(--tw-text-opacity, 1))}.line-through{-webkit-text-decoration-line:line-through;text-decoration-line:line-through}.no-underline{-webkit-text-decoration-line:none;text-decoration-line:none}.decoration-on-surface-variant{-webkit-text-decoration-color:#40493d;text-decoration-color:#40493d}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-80{opacity:0.8}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-100{transition-duration:100ms}.hover\:bg-\[\#C8E6C9\]:hover{--tw-bg-opacity:1;background-color:rgb(200 230 201 / var(--tw-bg-opacity, 1))}.hover\:bg-error\/90:hover{background-color:rgb(186 26 26 / 0.9)}.hover\:bg-primary\/90:hover{background-color:rgb(13 99 27 / 0.9)}.hover\:bg-secondary-container:hover{--tw-bg-opacity:1;background-color:rgb(221 226 243 / var(--tw-bg-opacity, 1))}.hover\:bg-surface-dim:hover{--tw-bg-opacity:1;background-color:rgb(215 218 220 / var(--tw-bg-opacity, 1))}.active\:scale-90:active{--tw-scale-x:.9;--tw-scale-y:.9;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.dark\:border-outline:is(.dark *){--tw-border-opacity:1;border-color:rgb(112 122 108 / var(--tw-border-opacity, 1))}.dark\:bg-background:is(.dark *){--tw-bg-opacity:1;background-color:rgb(247 250 252 / var(--tw-bg-opacity, 1))}.dark\:text-on-secondary-fixed-variant:is(.dark *){--tw-text-opacity:1;color:rgb(65 71 84 / var(--tw-text-opacity, 1))}.dark\:text-primary-fixed-dim:is(.dark *){--tw-text-opacity:1;color:rgb(136 217 130 / var(--tw-text-opacity, 1))}.dark\:hover\:bg-secondary-fixed-dim:hover:is(.dark *){--tw-bg-opacity:1;background-color:rgb(193 198 215 / var(--tw-bg-opacity, 1))}@media (min-width: 768px){.md\:left-0{left:0px}.md\:right-0{right:0px}.md\:mx-auto{margin-left:auto;margin-right:auto}.md\:min-h-\[884px\]{min-height:884px}.md\:max-w-md{max-width:28rem}.md\:border-x{border-left-width:1px;border-right-width:1px}.md\:border-outline-variant{--tw-border-opacity:1;border-color:rgb(191 202 186 / var(--tw-border-opacity, 1))}}</style></head>
+<body class="bg-surface text-on-surface font-body-md antialiased md:max-w-md md:mx-auto md:border-x md:border-outline-variant md:min-h-[884px] relative overflow-x-hidden" data-stitch-vh="md:min-h-[884px]===md:min-h-screen" data-mode="connect">
+<!-- Offline Banner -->
+<div class="bg-[#FFB95F] text-[#2A1700] px-gutter py-2 flex items-center justify-center space-x-2 sticky top-0 z-[60] text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[18px]">wifi_off</span>
+<span>Offline Mode - Syncing Paused</span>
+</div>
+<!-- TopAppBar from JSON -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-gutter w-full h-touch-target-min bg-surface dark:bg-background">
+<button aria-label="Menu" class="w-touch-target-min h-touch-target-min flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:bg-primary/8 dark:hover:bg-primary-fixed-dim/8 rounded-full scale-95 transition-transform duration-100">
+<span class="material-symbols-outlined">local_shipping</span>
+</button>
+<h1 class="font-display-title text-display-title text-primary dark:text-primary-fixed-dim">DoodhWala</h1>
+<button aria-label="Search" class="w-touch-target-min h-touch-target-min flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:bg-primary/8 dark:hover:bg-primary-fixed-dim/8 rounded-full scale-95 transition-transform duration-100">
+<span class="material-symbols-outlined">search</span>
+</button>
+</header>
+<!-- Sub-header Controls -->
+<div class="px-gutter pb-stack-md bg-surface z-40 sticky top-[48px] border-b border-surface-variant">
+<!-- Segmented Control -->
+<div class="flex bg-surface-variant rounded-lg p-1 mb-stack-md">
+<button class="flex-1 py-2 text-center rounded-md bg-primary text-on-primary font-button-text text-button-text shadow-sm">Morning</button>
+<button class="flex-1 py-2 text-center rounded-md text-on-surface-variant font-button-text text-button-text hover:bg-surface-dim transition-colors">Evening</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex overflow-x-auto hide-scrollbar space-x-2 pb-1">
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm border border-primary-container">All</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant border border-outline-variant font-label-sm text-label-sm hover:bg-surface-dim">High Dues</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant border border-outline-variant font-label-sm text-label-sm hover:bg-surface-dim">Pending</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-transparent text-on-surface-variant border border-outline-variant font-label-sm text-label-sm hover:bg-surface-dim">Done</button>
+</div>
+</div>
+<!-- Main Content List -->
+<main class="p-gutter space-y-stack-md">
+<!-- State 2E (High Dues) - Expanded -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant indicator-red overflow-hidden shadow-sm">
+<div class="p-4 border-b border-surface-variant">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-xs font-semibold text-error mb-1 block">🔴 ₹1,850 Due</span>
+<h2 class="font-customer-name text-customer-name text-on-surface flex items-center">
+<span class="text-on-surface-variant text-sm mr-2 font-normal">#01</span>
+                            Amit Kumar
+                        </h2>
+</div>
+<button class="h-10 w-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-dim text-on-surface">
+<span class="material-symbols-outlined">expand_less</span>
+</button>
+</div>
+<div class="flex items-center text-tertiary-container bg-[#FFeedf] text-sm px-2 py-1 rounded w-fit mt-1">
+<span class="material-symbols-outlined text-[16px] mr-1">warning</span>
+<span class="font-medium">Leave at back door</span>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low">
+<div class="flex flex-col items-center mb-6">
+<span class="text-on-surface-variant mb-2 text-sm font-medium">Cow Milk</span>
+<div class="flex items-center justify-between w-full max-w-[280px] bg-surface-container-lowest rounded-xl border border-outline-variant p-2">
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">-0.50</span></button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">-0.25</span></button>
+<div class="flex-1 text-center font-display-title text-display-title text-primary px-2">
+                            1.50L
+                        </div>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">+0.25</span></button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">+0.50</span></button>
+</div>
+</div>
+<div class="flex space-x-4">
+<button class="flex-1 py-3 px-4 rounded-lg border border-outline-variant text-on-surface font-button-text text-button-text flex items-center justify-center hover:bg-surface-dim">
+                        Skip
+                    </button>
+<button class="flex-[2] py-3 px-4 rounded-lg bg-primary text-on-primary font-button-text text-button-text flex items-center justify-center hover:bg-primary/90 shadow-sm">
+<span class="material-symbols-outlined mr-2">check_circle</span>
+                        Mark Delivered
+                    </button>
+</div>
+</div>
+</div>
+<!-- State 2B (Delivered) - Collapsed -->
+<div class="bg-[#E8F5E9] rounded-lg border border-[#A5D6A7] p-4 flex items-center justify-between shadow-sm">
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full bg-[#C8E6C9] text-primary flex items-center justify-center mr-3">
+<span class="material-symbols-outlined fill-icon">check</span>
+</div>
+<div>
+<h2 class="font-customer-name text-on-surface text-[18px] leading-tight flex items-center">
+<span class="text-on-surface-variant text-sm mr-2 font-normal">#02</span>
+                        Rohan Sharma
+                    </h2>
+<p class="text-primary font-medium text-sm mt-0.5">✓ 1.5L Delivered • 6:15 AM</p>
+</div>
+</div>
+<button class="h-10 w-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-[#C8E6C9]">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+<!-- State 2D (Vacation) - Collapsed -->
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 flex items-center justify-between opacity-80">
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full bg-surface-dim text-on-surface-variant flex items-center justify-center mr-3">
+<span class="material-symbols-outlined">flight_takeoff</span>
+</div>
+<div>
+<h2 class="font-customer-name text-on-surface text-[18px] leading-tight flex items-center line-through decoration-on-surface-variant">
+<span class="text-on-surface-variant text-sm mr-2 font-normal no-underline">#03</span>
+                        Priya Devi
+                    </h2>
+<p class="text-on-surface-variant font-medium text-sm mt-0.5">🏖️ On Vacation</p>
+</div>
+</div>
+<button class="h-10 w-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-dim" disabled="">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+<!-- State 2G (Credit) - Expanded -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant indicator-green overflow-hidden shadow-sm">
+<div class="p-4 border-b border-surface-variant">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-xs font-semibold text-primary mb-1 block">🟢 ₹200 Credit</span>
+<h2 class="font-customer-name text-customer-name text-on-surface flex items-center">
+<span class="text-on-surface-variant text-sm mr-2 font-normal">#04</span>
+                            Sunil Gupta
+                        </h2>
+</div>
+<button class="h-10 w-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-dim text-on-surface">
+<span class="material-symbols-outlined">expand_less</span>
+</button>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low">
+<div class="flex flex-col items-center mb-6">
+<span class="text-on-surface-variant mb-2 text-sm font-medium">Buffalo Milk</span>
+<div class="flex items-center justify-between w-full max-w-[280px] bg-surface-container-lowest rounded-xl border border-outline-variant p-2">
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">-0.50</span></button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">-0.25</span></button>
+<div class="flex-1 text-center font-display-title text-display-title text-primary px-2">
+                            2.00L
+                        </div>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">+0.25</span></button>
+<button class="w-12 h-12 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-dim"><span class="font-bold">+0.50</span></button>
+</div>
+</div>
+<div class="flex space-x-4">
+<button class="flex-1 py-3 px-4 rounded-lg border border-outline-variant text-on-surface font-button-text text-button-text flex items-center justify-center hover:bg-surface-dim">
+                        Skip
+                    </button>
+<button class="flex-[2] py-3 px-4 rounded-lg bg-primary text-on-primary font-button-text text-button-text flex items-center justify-center hover:bg-primary/90 shadow-sm">
+<span class="material-symbols-outlined mr-2">check_circle</span>
+                        Mark Delivered
+                    </button>
+</div>
+</div>
+</div>
+<!-- State 2F (Fail) - Collapsed/Alert -->
+<div class="bg-[#FEE2E2] rounded-lg border border-error p-4 animate-pulse shadow-sm">
+<div class="flex justify-between items-center mb-3">
+<div>
+<h2 class="font-customer-name text-error text-[18px] leading-tight flex items-center">
+<span class="text-error text-sm mr-2 font-normal">#05</span>
+                        Vikram Singh
+                    </h2>
+<p class="text-error font-medium text-sm mt-0.5 flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-1">error</span>
+                        Write Failed. Sync Error.
+                    </p>
+</div>
+</div>
+<button class="w-full py-2 px-4 rounded-md bg-error text-on-error font-button-text text-sm flex items-center justify-center hover:bg-error/90 shadow-sm">
+<span class="material-symbols-outlined mr-2 text-[18px]">refresh</span>
+                Retry Action
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation from JSON -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-base py-stack-sm bg-surface dark:bg-background border-t border-outline-variant dark:border-outline md:max-w-md md:mx-auto md:left-0 md:right-0">
+<!-- Active Tab: Home -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim w-[64px] active:scale-90 transition-all">
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 mb-1">
+<span class="material-symbols-outlined">route</span>
+</div>
+<span class="font-label-sm text-[12px] leading-tight">Home</span>
+</button>
+<!-- Inactive Tab: Customers -->
+<button class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim w-[64px] rounded-lg py-1 active:scale-90 transition-all">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-label-sm text-[12px] leading-tight">Customers</span>
+</button>
+<!-- Inactive Tab: Billing -->
+<button class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim w-[64px] rounded-lg py-1 active:scale-90 transition-all">
+<span class="material-symbols-outlined mb-1">receipt_long</span>
+<span class="font-label-sm text-[12px] leading-tight">Billing</span>
+</button>
+<!-- Inactive Tab: Payments -->
+<button class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim w-[64px] rounded-lg py-1 active:scale-90 transition-all">
+<span class="material-symbols-outlined mb-1">payments</span>
+<span class="font-label-sm text-[12px] leading-tight">Payments</span>
+</button>
+<!-- Inactive Tab: Settings -->
+<button class="flex flex-col items-center justify-center text-on-secondary-container dark:text-on-secondary-fixed-variant hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim w-[64px] rounded-lg py-1 active:scale-90 transition-all">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-label-sm text-[12px] leading-tight">Settings</span>
+</button>
+</nav>
+</body></html>
