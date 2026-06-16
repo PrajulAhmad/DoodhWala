@@ -97,24 +97,46 @@ const saveProfile = async () => {
   }
 
   try {
-    await dbService.run(
-      `UPDATE BusinessProfile SET 
-        business_name = ?, 
-        milkman_name = ?, 
-        phone_number = ?, 
-        upi_id = ?, 
-        address = ?,
-        updated_at = CURRENT_TIMESTAMP
-       WHERE business_id = ?;`,
-      [
-        profile.value.business_name.trim(),
-        profile.value.milkman_name.trim(),
-        profile.value.phone_number.trim(),
-        profile.value.upi_id.trim(),
-        profile.value.address ? profile.value.address.trim() : '',
-        profile.value.business_id
-      ]
-    );
+    const existingRes = await dbService.query("SELECT business_id, business_uuid FROM BusinessProfile LIMIT 1;");
+    if (existingRes.values && existingRes.values.length > 0) {
+      const existing = existingRes.values[0];
+      const realUuid = existing.business_uuid === 'bus-doodh-uuid'
+        ? `biz-${Date.now()}`
+        : existing.business_uuid;
+      await dbService.run(
+        `UPDATE BusinessProfile SET 
+          business_uuid = ?,
+          business_name = ?, 
+          milkman_name = ?, 
+          phone_number = ?, 
+          upi_id = ?, 
+          address = ?,
+          updated_at = CURRENT_TIMESTAMP
+         WHERE business_id = ?;`,
+        [
+          realUuid,
+          profile.value.business_name.trim(),
+          profile.value.milkman_name.trim(),
+          profile.value.phone_number.trim(),
+          profile.value.upi_id.trim(),
+          profile.value.address ? profile.value.address.trim() : '',
+          existing.business_id
+        ]
+      );
+    } else {
+      await dbService.run(
+        `INSERT INTO BusinessProfile (business_uuid, business_name, milkman_name, phone_number, upi_id, address)
+         VALUES (?, ?, ?, ?, ?, ?);`,
+        [
+          `biz-${Date.now()}`,
+          profile.value.business_name.trim(),
+          profile.value.milkman_name.trim(),
+          profile.value.phone_number.trim(),
+          profile.value.upi_id.trim(),
+          profile.value.address ? profile.value.address.trim() : ''
+        ]
+      );
+    }
 
     profileSuccess.value = 'Profile updated successfully!';
     setTimeout(() => { profileSuccess.value = ''; }, 3000);

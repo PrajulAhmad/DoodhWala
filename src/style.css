@@ -133,3 +133,9 @@ body {
 .btn-tonal-press:active {
   background-color: rgba(13, 99, 27, 0.08); /* Primary at 8% opacity */
 }
+
+/* Explicit select/option contrast overrides for Android/iOS native dark mode clashing */
+select option {
+  color: #181c1e !important;
+  background-color: #ffffff !important;
+}

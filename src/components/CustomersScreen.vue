@@ -119,6 +119,14 @@ const startEdit = async (cust) => {
   morningEnabled.value = false;
   eveningEnabled.value = false;
 
+  if (products.value.length > 0) {
+    morningProduct.value = products.value[0].product_id;
+    eveningProduct.value = products.value[0].product_id;
+  } else {
+    morningProduct.value = '';
+    eveningProduct.value = '';
+  }
+
   try {
     const subRes = await dbService.getSubscriptions(cust.customer_id);
     const subs = subRes || [];
@@ -159,6 +167,14 @@ const saveCustomer = async () => {
   }
   if (!morningEnabled.value && !eveningEnabled.value) {
     formError.value = 'At least one delivery slot subscription (Morning or Evening) must be enabled.';
+    return;
+  }
+  if (morningEnabled.value && !morningProduct.value) {
+    formError.value = 'Morning delivery shift product is required.';
+    return;
+  }
+  if (eveningEnabled.value && !eveningProduct.value) {
+    formError.value = 'Evening delivery shift product is required.';
     return;
   }
 
@@ -432,7 +448,8 @@ const adjustQty = (shift, val) => {
                   v-model="morningProduct"
                   class="w-full border border-outline-variant bg-surface rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary"
                 >
-                  <option v-for="p in products" :key="p.product_id" :value="p.product_id">
+                  <option value="" disabled>-- Select a Product --</option>
+                  <option v-for="p in products" :key="p.product_id" :value="p.product_id" class="text-on-surface bg-surface">
                     {{ p.product_name }} ({{ p.unit }})
                   </option>
                 </select>
@@ -520,7 +537,8 @@ const adjustQty = (shift, val) => {
                   v-model="eveningProduct"
                   class="w-full border border-outline-variant bg-surface rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary"
                 >
-                  <option v-for="p in products" :key="p.product_id" :value="p.product_id">
+                  <option value="" disabled>-- Select a Product --</option>
+                  <option v-for="p in products" :key="p.product_id" :value="p.product_id" class="text-on-surface bg-surface">
                     {{ p.product_name }} ({{ p.unit }})
                   </option>
                 </select>

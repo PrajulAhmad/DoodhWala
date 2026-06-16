@@ -65,6 +65,10 @@ const adjReason = ref('');
 const adjRefInvoiceId = ref(null);
 const adjError = ref('');
 
+// On-demand Invoice generation state
+const selectedInvoiceMonthIndex = ref(0);
+const genInvoiceError = ref('');
+
 // Generate list of last 6 months for dropdown selector
 const generateMonthsList = () => {
   const list = [];
@@ -390,6 +394,37 @@ const markInvoiceLocked = async (inv) => {
     await loadProfile();
   } catch (err) {
     alert(err.message || 'Failed to lock invoice.');
+  }
+};
+
+const generateOnDemandInvoice = async () => {
+  genInvoiceError.value = '';
+  if (monthsList.value.length === 0) return;
+  const sel = monthsList.value[selectedInvoiceMonthIndex.value];
+  try {
+    await dbService.generateInvoice(props.customerId, sel.year, sel.month);
+    await loadInvoices();
+    await loadProfile();
+  } catch (err) {
+    genInvoiceError.value = err.message || 'Failed to generate invoice.';
+  }
+};
+
+const viewInvoicePDF = async (inv) => {
+  try {
+    const pdfBase64 = await pdfService.generateInvoicePDF(inv.invoice_id);
+    const byteCharacters = atob(pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+  } catch (err) {
+    console.error("Failed to view invoice PDF:", err);
+    alert(err.message || 'Failed to generate PDF preview.');
   }
 };
 
@@ -940,17 +975,43 @@ const shareInvoice = async (inv) => {
           </span>
         </div>
 
+        <!-- Generate On-Demand Invoice Card -->
+        <div class="bg-surface-container-low rounded-xl border border-outline-variant p-4 space-y-3 shadow-sm">
+          <div class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-primary text-[20px]">magic_button</span>
+            <h4 class="text-sm font-bold text-on-surface">Generate On-Demand Invoice</h4>
+          </div>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            Compile deliveries, payments, and adjustments for any period to create or update an invoice immediately.
+          </p>
+          <div class="flex items-center space-x-3">
+            <div class="flex-1">
+              <select 
+                v-model="selectedInvoiceMonthIndex" 
+                class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 text-xs text-on-surface focus:outline-none focus:border-primary"
+              >
+                <option v-for="(m, idx) in monthsList" :key="idx" :value="idx">
+                  {{ m.label }}
+                </option>
+              </select>
+            </div>
+            <button 
+              @click="generateOnDemandInvoice"
+              class="py-2 px-4 rounded-lg bg-primary text-on-primary font-semibold text-xs hover:bg-primary/95 shadow-sm transition-all active:scale-95 flex items-center"
+            >
+              <span class="material-symbols-outlined text-[14px] mr-1">receipt_long</span>
+              Generate
+            </button>
+          </div>
+          <p v-if="genInvoiceError" class="text-xs text-error font-medium mt-1">{{ genInvoiceError }}</p>
+        </div>
+
         <!-- List or Placeholder -->
         <div v-if="invoices.length === 0" class="py-12 text-center bg-surface-container-lowest rounded-lg border border-outline-variant p-6">
           <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-2">receipt_long</span>
           <h3 class="font-customer-name text-on-surface mb-1">No Invoices Finalized</h3>
-          <p class="font-body-md text-on-surface-variant text-sm mb-3">Billing summaries compile at month-end.</p>
-          <button 
-            disabled
-            class="py-2 px-4 rounded bg-gray-100 border border-gray-200 text-gray-400 font-button-text text-xs flex items-center justify-center mx-auto"
-          >
-            Generate June Invoice
-          </button>
+          <p class="font-body-md text-on-surface-variant text-sm mb-1">Billing summaries compile at month-end.</p>
+          <p class="text-xs text-on-surface-variant">Use the card above to generate a new invoice on demand.</p>
         </div>
 
         <div v-else class="space-y-3">
@@ -990,6 +1051,15 @@ const shareInvoice = async (inv) => {
 
             <!-- Invoice Action Buttons -->
             <div class="px-3 py-2 flex gap-2 border-t border-outline-variant">
+              <!-- View PDF -->
+              <button
+                @click="viewInvoicePDF(inv)"
+                class="flex-1 py-1.5 text-xs font-semibold rounded-lg border border-outline-variant bg-surface-container hover:bg-surface-dim text-on-surface flex items-center justify-center gap-1 transition-all active:scale-95"
+              >
+                <span class="material-symbols-outlined text-[14px]">visibility</span>
+                View PDF
+              </button>
+
               <!-- Share — available when GENERATED or SHARED (resend) -->
               <button
                 v-if="inv.billing_status === 'GENERATED' || inv.billing_status === 'SHARED'"

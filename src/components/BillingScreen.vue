@@ -119,6 +119,35 @@ const shareInvoice = async (customer) => {
   }
 };
 
+const viewInvoicePDF = async (customer) => {
+  try {
+    let invoiceId = customer.invoice_id;
+    if (!invoiceId) {
+      const period = getSelectedPeriod();
+      const genRes = await dbService.generateInvoice(customer.customer_id, period.year, period.month);
+      invoiceId = genRes.invoiceId;
+    }
+    
+    const pdfBase64 = await pdfService.generateInvoicePDF(invoiceId);
+    const byteCharacters = atob(pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+    
+    if (!customer.invoice_id) {
+      await loadBillingSummary();
+    }
+  } catch (err) {
+    console.error("Failed to view invoice PDF:", err);
+    alert(err.message || 'Failed to view PDF preview.');
+  }
+};
+
 // Loops through all pending invoices and triggers share sheets sequentially
 const sendAllInvoices = async () => {
   if (isGeneratingAll.value) return;
@@ -270,6 +299,16 @@ const getInvoiceBadgeLabel = (status) => {
           </div>
 
           <div class="flex items-center space-x-2">
+            <!-- View PDF button -->
+            <button 
+              @click="viewInvoicePDF(c)"
+              :disabled="isGeneratingAll"
+              class="py-1.5 px-2.5 border border-outline-variant bg-surface-container hover:bg-surface-dim text-xs font-semibold rounded-md transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center"
+              title="Preview Invoice PDF"
+            >
+              <span class="material-symbols-outlined text-[16px]">visibility</span>
+            </button>
+
             <!-- Generate Invoice button if not generated yet -->
             <button 
               v-if="!c.invoice_status"

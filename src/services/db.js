@@ -59,31 +59,10 @@ class DatabaseService {
 
       await this.db.open();
 
-      // For web platform, bypass transaction queries at connection level
-      if (platform === 'web') {
-        const originalExecute = this.db.execute.bind(this.db);
-        this.db.execute = async (statement) => {
-          const trimmed = statement.trim().toUpperCase();
-          if (trimmed === 'BEGIN TRANSACTION;' || trimmed === 'COMMIT;' || trimmed === 'ROLLBACK;') {
-            console.log(`[Web SQL Bypass] Intercepted raw transaction SQL: ${trimmed}`);
-            return { changes: { changes: 0 } };
-          }
-          return await originalExecute(statement);
-        };
-
-        this.db.beginTransaction = async () => {
-          console.log(`[Web SQL Bypass] Intercepted native beginTransaction`);
-          return { changes: { changes: 0 } };
-        };
-        this.db.commitTransaction = async () => {
-          console.log(`[Web SQL Bypass] Intercepted native commitTransaction`);
-          return { changes: { changes: 0 } };
-        };
-        this.db.rollbackTransaction = async () => {
-          console.log(`[Web SQL Bypass] Intercepted native rollbackTransaction`);
-          return { changes: { changes: 0 } };
-        };
-      }
+      // Enable WAL mode for better concurrent read/write on Android
+      try {
+        await this.db.execute("PRAGMA journal_mode=WAL;");
+      } catch (_) { /* not supported on web, safe to ignore */ }
 
       await this.createSchema();
       await this.seedInitialData();
@@ -378,89 +357,67 @@ class DatabaseService {
 
     console.log("Seeding initial test data into SQLite database...");
 
-    try {
-      await this.db.beginTransaction();
+    // 1. Insert Products
+    await this.db.run("INSERT OR IGNORE INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-cow-uuid", "Cow Milk", "Litre"]);
+    await this.db.run("INSERT OR IGNORE INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-buffalo-uuid", "Buffalo Milk", "Litre"]);
 
-      // 1. Insert Products
-      await this.db.run("INSERT OR IGNORE INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-cow-uuid", "Cow Milk", "Litre"]);
-      await this.db.run("INSERT OR IGNORE INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-buffalo-uuid", "Buffalo Milk", "Litre"]);
+    // 2. Insert Customers
+    const customersSeed = [
+      { id: 1, uuid: 'cust-amit-uuid', name: 'Amit Kumar', phone: '9876543210', address: 'House 42, Sector 4', seq: 1, notes: 'Leave at back door' },
+      { id: 2, uuid: 'cust-rohan-uuid', name: 'Rohan Sharma', phone: '9876543211', address: 'House 11, Sector 4', seq: 2, notes: '' },
+      { id: 3, uuid: 'cust-priya-uuid', name: 'Priya Devi', phone: '9876543212', address: 'House 99, Sector 2', seq: 3, notes: '' },
+      { id: 4, uuid: 'cust-sunil-uuid', name: 'Sunil Gupta', phone: '9876543213', address: 'House 5, Sector 1', seq: 4, notes: '' },
+      { id: 5, uuid: 'cust-vikram-uuid', name: 'Vikram Singh', phone: '9876543214', address: 'House 23, Sector 3', seq: 5, notes: '' }
+    ];
 
-      // 2. Insert Customers
-      const customersSeed = [
-        { id: 1, uuid: 'cust-amit-uuid', name: 'Amit Kumar', phone: '9876543210', address: 'House 42, Sector 4', seq: 1, notes: 'Leave at back door' },
-        { id: 2, uuid: 'cust-rohan-uuid', name: 'Rohan Sharma', phone: '9876543211', address: 'House 11, Sector 4', seq: 2, notes: '' },
-        { id: 3, uuid: 'cust-priya-uuid', name: 'Priya Devi', phone: '9876543212', address: 'House 99, Sector 2', seq: 3, notes: '' },
-        { id: 4, uuid: 'cust-sunil-uuid', name: 'Sunil Gupta', phone: '9876543213', address: 'House 5, Sector 1', seq: 4, notes: '' },
-        { id: 5, uuid: 'cust-vikram-uuid', name: 'Vikram Singh', phone: '9876543214', address: 'House 23, Sector 3', seq: 5, notes: '' }
-      ];
-
-      for (const c of customersSeed) {
-        await this.db.run(
-          "INSERT OR IGNORE INTO Customers (customer_id, customer_uuid, name, phone_number, address, route_sequence, special_notes) VALUES (?, ?, ?, ?, ?, ?, ?);",
-          [c.id, c.uuid, c.name, c.phone, c.address, c.seq, c.notes]
-        );
-      }
-
-      // 3. Insert Subscriptions
-      // Amit Kumar: Cow Milk, Morning (shift 0), default quantity 1.5, custom rate 6500 paise (₹65.00)
+    for (const c of customersSeed) {
       await this.db.run(
-        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
-        ['sub-amit-uuid', 1, 1, 0, 1.5, 6500, 0.25]
+        "INSERT OR IGNORE INTO Customers (customer_id, customer_uuid, name, phone_number, address, route_sequence, special_notes) VALUES (?, ?, ?, ?, ?, ?, ?);",
+        [c.id, c.uuid, c.name, c.phone, c.address, c.seq, c.notes]
       );
-      // Rohan Sharma: Cow Milk, Morning (shift 0), default 1.5, rate 6500
-      await this.db.run(
-        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
-        ['sub-rohan-uuid', 2, 1, 0, 1.5, 6500, 0.25]
-      );
-      // Priya Devi: Cow Milk, Morning (shift 0), default 1.0, rate 6500
-      await this.db.run(
-        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
-        ['sub-priya-uuid', 3, 1, 0, 1.0, 6500, 0.25]
-      );
-      // Sunil Gupta: Buffalo Milk, Morning (shift 0), default 2.0, rate 7500 (₹75.00)
-      await this.db.run(
-        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
-        ['sub-sunil-uuid', 4, 2, 0, 2.0, 7500, 0.25]
-      );
-      // Vikram Singh: Cow Milk, Morning (shift 0), default 1.0, rate 6500
-      await this.db.run(
-        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
-        ['sub-vikram-uuid', 5, 1, 0, 1.0, 6500, 0.25]
-      );
-
-      // 4. Seeding vacation schedule for Priya Devi (Customer 3)
-      // vacation spanning today's date
-      const today = new Date().toISOString().split('T')[0];
-      const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      await this.db.run(
-        "INSERT OR IGNORE INTO VacationSchedules (vacation_uuid, customer_id, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?);",
-        ['vac-priya-uuid', 3, today, nextWeek, 1]
-      );
-
-      // 5. Seed financial ledger adjustments to test balances
-      // Amit Kumar (Customer 1): ₹1,850.00 outstanding dues (185000 paise)
-      await this.db.run(
-        "INSERT OR IGNORE INTO AdjustmentLog (adjustment_uuid, customer_id, amount, type, reason) VALUES (?, ?, ?, ?, ?);",
-        ['adj-amit-dues', 1, 185000, 'DEBIT', 'Opening Balance Dues']
-      );
-
-      // Sunil Gupta (Customer 4): ₹200.00 advance credit (20000 paise)
-      await this.db.run(
-        "INSERT OR IGNORE INTO PaymentLog (payment_uuid, customer_id, amount_collected, payment_mode, notes) VALUES (?, ?, ?, ? ,?);",
-        ['pay-sunil-credit', 4, 20000, 'Cash', 'Opening Advance Payment']
-      );
-
-      await this.db.commitTransaction();
-      console.log("Seeding initial data completed successfully.");
-    } catch (err) {
-      try {
-        await this.db.rollbackTransaction();
-      } catch (rollbackErr) {
-        console.error("Failed to rollback seeding transaction:", rollbackErr);
-      }
-      console.error("Seeding initial data failed, transaction rolled back:", err);
-      throw err;
     }
+
+    // 3. Insert Subscriptions
+    await this.db.run(
+      "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+      ['sub-amit-uuid', 1, 1, 0, 1.5, 6500, 0.25]
+    );
+    await this.db.run(
+      "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+      ['sub-rohan-uuid', 2, 1, 0, 1.5, 6500, 0.25]
+    );
+    await this.db.run(
+      "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+      ['sub-priya-uuid', 3, 1, 0, 1.0, 6500, 0.25]
+    );
+    await this.db.run(
+      "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+      ['sub-sunil-uuid', 4, 2, 0, 2.0, 7500, 0.25]
+    );
+    await this.db.run(
+      "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+      ['sub-vikram-uuid', 5, 1, 0, 1.0, 6500, 0.25]
+    );
+
+    // 4. Seeding vacation schedule for Priya Devi (Customer 3)
+    const today = new Date().toISOString().split('T')[0];
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    await this.db.run(
+      "INSERT OR IGNORE INTO VacationSchedules (vacation_uuid, customer_id, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?);",
+      ['vac-priya-uuid', 3, today, nextWeek, 1]
+    );
+
+    // 5. Seed financial ledger adjustments
+    await this.db.run(
+      "INSERT OR IGNORE INTO AdjustmentLog (adjustment_uuid, customer_id, amount, type, reason) VALUES (?, ?, ?, ?, ?);",
+      ['adj-amit-dues', 1, 185000, 'DEBIT', 'Opening Balance Dues']
+    );
+    await this.db.run(
+      "INSERT OR IGNORE INTO PaymentLog (payment_uuid, customer_id, amount_collected, payment_mode, notes) VALUES (?, ?, ?, ? ,?);",
+      ['pay-sunil-credit', 4, 20000, 'Cash', 'Opening Advance Payment']
+    );
+
+    console.log("Seeding initial data completed successfully.");
   }
 
   // Q1 & Q2 — Today's Route List Query
@@ -489,7 +446,7 @@ class DatabaseService {
         -- Vacation check
         (SELECT vs.vacation_id FROM VacationSchedules vs 
          WHERE vs.customer_id = c.customer_id 
-           AND vs.is_active = 1 
+           AND vs.is_active <> 0 
            AND vs.deleted_at IS NULL 
            AND ? BETWEEN vs.start_date AND vs.end_date LIMIT 1) IS NOT NULL AS on_vacation,
         
@@ -544,9 +501,9 @@ class DatabaseService {
         AND d.delivery_date = ? 
         AND d.delivery_shift = ?
         AND d.deleted_at IS NULL
-      WHERE c.is_active = 1 
+      WHERE c.is_active <> 0 
         AND c.deleted_at IS NULL
-        AND s.is_active = 1
+        AND s.is_active <> 0
         AND s.deleted_at IS NULL
         AND s.delivery_shift = ?
       ORDER BY c.route_sequence ASC;
@@ -558,74 +515,68 @@ class DatabaseService {
 
   // Q3 — Insert or Update Daily Delivery (with SyncQueue write)
   async logDelivery(deliveryData) {
-    if (!this.db) throw new Error("Database not initialized.");
+      if (!this.db) throw new Error("Database not initialized.");
 
-    const {
-      customer_id,
-      sub_id,
-      product_id,
-      delivery_date,
-      delivery_shift,
-      quantity_delivered,
-      rate_applied,
-      status // 'Delivered' | 'Skipped'
-    } = deliveryData;
+      const {
+        customer_id,
+        sub_id,
+        product_id,
+        delivery_date,
+        delivery_shift,
+        quantity_delivered,
+        rate_applied,
+        status
+      } = deliveryData;
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      try {
 
-      // Check if row already exists
-      const checkResult = await this.db.query(
-        "SELECT delivery_id, delivery_uuid, revision_number FROM DailyDelivery WHERE customer_id = ? AND product_id = ? AND delivery_date = ? AND delivery_shift = ? AND deleted_at IS NULL LIMIT 1;",
-        [customer_id, product_id, delivery_date, delivery_shift]
-      );
-
-      let deliveryUuid = "";
-      let deliveryId = null;
-
-      if (checkResult.values && checkResult.values.length > 0) {
-        // Row exists -> UPDATE
-        const row = checkResult.values[0];
-        deliveryId = row.delivery_id;
-        deliveryUuid = row.delivery_uuid;
-        const newRevision = row.revision_number + 1;
-
-        // Perform Update
-        await this.db.run(
-          "UPDATE DailyDelivery SET quantity_delivered = ?, status = ?, revision_number = ?, sync_status = 0, updated_at = CURRENT_TIMESTAMP WHERE delivery_id = ?;",
-          [quantity_delivered, status, newRevision, deliveryId]
+        // Check if delivery already exists for today/shift
+        const checkRes = await this.db.query(
+          "SELECT delivery_id, delivery_uuid FROM DailyDelivery WHERE customer_id = ? AND product_id = ? AND delivery_date = ? AND delivery_shift = ? LIMIT 1;",
+          [customer_id, product_id, delivery_date, delivery_shift]
         );
 
-        // Add update operation to SyncQueue
-        await this.db.run(
-          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-          ['DailyDelivery', deliveryUuid, 'UPDATE']
-        );
-      } else {
-        // Row doesn't exist -> INSERT
-        deliveryUuid = generateUUID();
+        let deliveryId;
+        let deliveryUuid;
 
-        // Perform Insert
-        const runResult = await this.db.run(
-          "INSERT INTO DailyDelivery (delivery_uuid, customer_id, sub_id, product_id, delivery_date, delivery_shift, quantity_delivered, rate_applied, status, sync_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0);",
-          [deliveryUuid, customer_id, sub_id, product_id, delivery_date, delivery_shift, quantity_delivered, rate_applied, status]
-        );
-        deliveryId = runResult.changes.lastId;
+        if (checkRes.values && checkRes.values.length > 0) {
+          // Update existing
+          deliveryId = checkRes.values[0].delivery_id;
+          deliveryUuid = checkRes.values[0].delivery_uuid;
 
-        // Add insert operation to SyncQueue
-        await this.db.run(
-          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-          ['DailyDelivery', deliveryUuid, 'INSERT']
-        );
+          await this.db.run(
+            `UPDATE DailyDelivery 
+             SET quantity_delivered = ?, rate_applied = ?, status = ?, revision_number = revision_number + 1, updated_at = CURRENT_TIMESTAMP
+             WHERE delivery_id = ?;`,
+            [quantity_delivered, rate_applied, status, deliveryId]
+          );
+
+          // Add update operation to SyncQueue
+          await this.db.run(
+            "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+            ['DailyDelivery', deliveryUuid, 'UPDATE']
+          );
+        } else {
+          // Insert new
+          deliveryUuid = generateUUID();
+          const runResult = await this.db.run(
+            `INSERT INTO DailyDelivery (delivery_uuid, customer_id, sub_id, product_id, delivery_date, delivery_shift, quantity_delivered, rate_applied, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+            [deliveryUuid, customer_id, sub_id || null, product_id, delivery_date, delivery_shift, quantity_delivered, rate_applied, status]
+          );
+          deliveryId = runResult.changes.lastId;
+
+          // Add insert operation to SyncQueue
+          await this.db.run(
+            "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+            ['DailyDelivery', deliveryUuid, 'INSERT']
+          );
+        }
+        return { success: true, deliveryId, deliveryUuid };
+      } catch (err) {
+        console.error("Failed to log delivery in transaction:", err);
+        throw err;
       }
-
-      await this.db.execute("COMMIT;");
-      return { success: true, deliveryId, deliveryUuid };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to log delivery in transaction:", err);
-      throw err;
-    }
   }
 
   async getCustomerDetails(customerId) {
@@ -674,60 +625,56 @@ class DatabaseService {
   }
 
   async updateDelivery(deliveryId, editData) {
-    if (!this.db) throw new Error("Database not initialized.");
-    const { new_quantity, new_status, reason_notes } = editData;
+      if (!this.db) throw new Error("Database not initialized.");
+      const { new_quantity, new_status, reason_notes } = editData;
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      try {
 
-      const getResult = await this.db.query(
-        "SELECT * FROM DailyDelivery WHERE delivery_id = ? AND deleted_at IS NULL LIMIT 1;",
-        [deliveryId]
-      );
-      if (!getResult.values || getResult.values.length === 0) {
-        throw new Error("Delivery record not found.");
-      }
-      const oldRow = getResult.values[0];
-
-      // LOCK CHECK: Check if linked invoice is final
-      if (oldRow.invoice_id) {
-        const invRes = await this.db.query(
-          "SELECT billing_status FROM Invoice WHERE invoice_id = ? LIMIT 1;",
-          [oldRow.invoice_id]
+        const getResult = await this.db.query(
+          "SELECT * FROM DailyDelivery WHERE delivery_id = ? AND deleted_at IS NULL LIMIT 1;",
+          [deliveryId]
         );
-        if (invRes.values && invRes.values.length > 0) {
-          const status = invRes.values[0].billing_status;
-          if (['SHARED', 'SETTLED', 'LOCKED'].includes(status)) {
-            throw new Error(`This delivery is locked under invoice status ${status} and cannot be modified.`);
+        if (!getResult.values || getResult.values.length === 0) {
+          throw new Error("Delivery record not found.");
+        }
+        const oldRow = getResult.values[0];
+
+        // LOCK CHECK: Check if linked invoice is final
+        if (oldRow.invoice_id) {
+          const invRes = await this.db.query(
+            "SELECT billing_status FROM Invoice WHERE invoice_id = ? LIMIT 1;",
+            [oldRow.invoice_id]
+          );
+          if (invRes.values && invRes.values.length > 0) {
+            const status = invRes.values[0].billing_status;
+            if (['SHARED', 'SETTLED', 'LOCKED'].includes(status)) {
+              throw new Error(`This delivery is locked under invoice status ${status} and cannot be modified.`);
+            }
           }
         }
+
+        const newRevision = (oldRow.revision_number || 1) + 1;
+
+        await this.db.run(
+          "UPDATE DailyDelivery SET quantity_delivered = ?, status = ?, revision_number = ?, sync_status = 0, updated_at = CURRENT_TIMESTAMP WHERE delivery_id = ?;",
+          [new_quantity, new_status, newRevision, deliveryId]
+        );
+
+        await this.db.run(
+          `INSERT INTO DeliveryAuditLog (delivery_id, revision_number, old_quantity, new_quantity, old_status, new_status, reason_notes)
+           VALUES (?, ?, ?, ?, ?, ?, ?);`,
+          [deliveryId, newRevision, oldRow.quantity_delivered, new_quantity, oldRow.status, new_status, reason_notes || '']
+        );
+
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['DailyDelivery', oldRow.delivery_uuid, 'UPDATE']
+        );
+        return { success: true };
+      } catch (err) {
+        console.error("Failed to update delivery in transaction:", err);
+        throw err;
       }
-
-      const newRevision = (oldRow.revision_number || 1) + 1;
-
-      await this.db.run(
-        "UPDATE DailyDelivery SET quantity_delivered = ?, status = ?, revision_number = ?, sync_status = 0, updated_at = CURRENT_TIMESTAMP WHERE delivery_id = ?;",
-        [new_quantity, new_status, newRevision, deliveryId]
-      );
-
-      await this.db.run(
-        `INSERT INTO DeliveryAuditLog (delivery_id, revision_number, old_quantity, new_quantity, old_status, new_status, reason_notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?);`,
-        [deliveryId, newRevision, oldRow.quantity_delivered, new_quantity, oldRow.status, new_status, reason_notes || '']
-      );
-
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['DailyDelivery', oldRow.delivery_uuid, 'UPDATE']
-      );
-
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to update delivery in transaction:", err);
-      throw err;
-    }
   }
 
   async getPayments(customerId) {
@@ -735,39 +682,49 @@ class DatabaseService {
     const queryStr = `
       SELECT * FROM PaymentLog 
       WHERE customer_id = ? AND deleted_at IS NULL
-      ORDER BY payment_date DESC, created_at DESC;
+      ORDER BY payment_date DESC, pay_id DESC;
     `;
     const result = await this.db.query(queryStr, [customerId]);
     return result.values || [];
   }
 
-  async logPayment(paymentData) {
+  async getRecentPayments(limit = 10) {
     if (!this.db) throw new Error("Database not initialized.");
-    const { customer_id, amount_collected, payment_date, payment_mode, notes } = paymentData;
+    const queryStr = `
+      SELECT p.*, c.name as customer_name 
+      FROM PaymentLog p
+      JOIN Customers c ON p.customer_id = c.customer_id
+      WHERE p.deleted_at IS NULL
+      ORDER BY p.payment_date DESC, p.pay_id DESC
+      LIMIT ?;
+    `;
+    const result = await this.db.query(queryStr, [limit]);
+    return result.values || [];
+  }
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+  async logPayment(paymentData) {
+      if (!this.db) throw new Error("Database not initialized.");
+      const { customer_id, amount_collected, payment_date, payment_mode, notes } = paymentData;
 
-      const paymentUuid = generateUUID();
-      const runResult = await this.db.run(
-        `INSERT INTO PaymentLog (payment_uuid, customer_id, amount_collected, payment_date, payment_mode, notes, sync_status)
-         VALUES (?, ?, ?, ?, ?, ?, 0);`,
-        [paymentUuid, customer_id, amount_collected, payment_date, payment_mode, notes || '']
-      );
-      const paymentId = runResult.changes.lastId;
+      try {
 
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['PaymentLog', paymentUuid, 'INSERT']
-      );
+        const paymentUuid = generateUUID();
+        const runResult = await this.db.run(
+          `INSERT INTO PaymentLog (payment_uuid, customer_id, amount_collected, payment_date, payment_mode, notes, sync_status)
+           VALUES (?, ?, ?, ?, ?, ?, 0);`,
+          [paymentUuid, customer_id, amount_collected, payment_date, payment_mode, notes || '']
+        );
+        const paymentId = runResult.changes.lastId;
 
-      await this.db.execute("COMMIT;");
-      return { success: true, paymentId, paymentUuid };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to log payment in transaction:", err);
-      throw err;
-    }
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['PaymentLog', paymentUuid, 'INSERT']
+        );
+        return { success: true, paymentId, paymentUuid };
+      } catch (err) {
+        console.error("Failed to log payment in transaction:", err);
+        throw err;
+      }
   }
 
   async getSubscriptions(customerId) {
@@ -783,45 +740,41 @@ class DatabaseService {
   }
 
   async updateSubscription(subId, subData) {
-    if (!this.db) throw new Error("Database not initialized.");
-    const { default_quantity, custom_rate, quantity_step, is_active } = subData;
+      if (!this.db) throw new Error("Database not initialized.");
+      const { default_quantity, custom_rate, quantity_step, is_active } = subData;
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      try {
 
-      const getResult = await this.db.query("SELECT sub_uuid, revision_number FROM Subscriptions WHERE sub_id = ? LIMIT 1;", [subId]);
-      if (!getResult.values || getResult.values.length === 0) {
-        throw new Error("Subscription not found.");
+        const getResult = await this.db.query("SELECT sub_uuid, revision_number FROM Subscriptions WHERE sub_id = ? LIMIT 1;", [subId]);
+        if (!getResult.values || getResult.values.length === 0) {
+          throw new Error("Subscription not found.");
+        }
+        const row = getResult.values[0];
+        const newRevision = (row.revision_number || 1) + 1;
+
+        await this.db.run(
+          `UPDATE Subscriptions 
+           SET default_quantity = ?, custom_rate = ?, quantity_step = ?, is_active = ?, revision_number = ?, updated_at = CURRENT_TIMESTAMP 
+           WHERE sub_id = ?;`,
+          [default_quantity, custom_rate, quantity_step, is_active, newRevision, subId]
+        );
+
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['Subscriptions', row.sub_uuid, 'UPDATE']
+        );
+        return { success: true };
+      } catch (err) {
+        console.error("Failed to update subscription in transaction:", err);
+        throw err;
       }
-      const row = getResult.values[0];
-      const newRevision = (row.revision_number || 1) + 1;
-
-      await this.db.run(
-        `UPDATE Subscriptions 
-         SET default_quantity = ?, custom_rate = ?, quantity_step = ?, is_active = ?, revision_number = ?, updated_at = CURRENT_TIMESTAMP 
-         WHERE sub_id = ?;`,
-        [default_quantity, custom_rate, quantity_step, is_active, newRevision, subId]
-      );
-
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['Subscriptions', row.sub_uuid, 'UPDATE']
-      );
-
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to update subscription in transaction:", err);
-      throw err;
-    }
   }
 
   async getVacations(customerId) {
     if (!this.db) throw new Error("Database not initialized.");
     const queryStr = `
       SELECT * FROM VacationSchedules 
-      WHERE customer_id = ? AND deleted_at IS NULL AND is_active = 1
+      WHERE customer_id = ? AND deleted_at IS NULL AND is_active <> 0
       ORDER BY start_date DESC;
     `;
     const result = await this.db.query(queryStr, [customerId]);
@@ -829,70 +782,62 @@ class DatabaseService {
   }
 
   async addVacation(vacationData) {
-    if (!this.db) throw new Error("Database not initialized.");
-    const { customer_id, start_date, end_date } = vacationData;
+      if (!this.db) throw new Error("Database not initialized.");
+      const { customer_id, start_date, end_date } = vacationData;
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      try {
 
-      const vacationUuid = generateUUID();
-      const runResult = await this.db.run(
-        `INSERT INTO VacationSchedules (vacation_uuid, customer_id, start_date, end_date, is_active)
-         VALUES (?, ?, ?, ?, 1);`,
-        [vacationUuid, customer_id, start_date, end_date]
-      );
-      const vacationId = runResult.changes.lastId;
+        const vacationUuid = generateUUID();
+        const runResult = await this.db.run(
+          `INSERT INTO VacationSchedules (vacation_uuid, customer_id, start_date, end_date, is_active)
+           VALUES (?, ?, ?, ?, 1);`,
+          [vacationUuid, customer_id, start_date, end_date]
+        );
+        const vacationId = runResult.changes.lastId;
 
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['VacationSchedules', vacationUuid, 'INSERT']
-      );
-
-      await this.db.execute("COMMIT;");
-      return { success: true, vacationId, vacationUuid };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to add vacation in transaction:", err);
-      throw err;
-    }
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['VacationSchedules', vacationUuid, 'INSERT']
+        );
+        return { success: true, vacationId, vacationUuid };
+      } catch (err) {
+        console.error("Failed to add vacation in transaction:", err);
+        throw err;
+      }
   }
 
   async deleteVacation(vacationId) {
-    if (!this.db) throw new Error("Database not initialized.");
+      if (!this.db) throw new Error("Database not initialized.");
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      try {
 
-      const getResult = await this.db.query("SELECT vacation_uuid FROM VacationSchedules WHERE vacation_id = ? LIMIT 1;", [vacationId]);
-      if (!getResult.values || getResult.values.length === 0) {
-        throw new Error("Vacation schedule not found.");
+        const getResult = await this.db.query("SELECT vacation_uuid FROM VacationSchedules WHERE vacation_id = ? LIMIT 1;", [vacationId]);
+        if (!getResult.values || getResult.values.length === 0) {
+          throw new Error("Vacation schedule not found.");
+        }
+        const row = getResult.values[0];
+
+        await this.db.run(
+          "UPDATE VacationSchedules SET is_active = 0, deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE vacation_id = ?;",
+          [vacationId]
+        );
+
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['VacationSchedules', row.vacation_uuid, 'DELETE']
+        );
+        return { success: true };
+      } catch (err) {
+        console.error("Failed to delete vacation in transaction:", err);
+        throw err;
       }
-      const row = getResult.values[0];
-
-      await this.db.run(
-        "UPDATE VacationSchedules SET is_active = 0, deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE vacation_id = ?;",
-        [vacationId]
-      );
-
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['VacationSchedules', row.vacation_uuid, 'DELETE']
-      );
-
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to delete vacation in transaction:", err);
-      throw err;
-    }
   }
 
   async getInvoices(customerId) {
     if (!this.db) throw new Error("Database not initialized.");
     const queryStr = `
       SELECT * FROM Invoice 
-      WHERE customer_id = ? AND deleted_at IS NULL
+      WHERE customer_id = ?
       ORDER BY billing_year DESC, billing_month DESC;
     `;
     const result = await this.db.query(queryStr, [customerId]);
@@ -902,15 +847,17 @@ class DatabaseService {
   async getAllCustomersForPayment() {
     if (!this.db) throw new Error("Database not initialized.");
     const result = await this.db.query(
-      "SELECT customer_id, name, route_sequence FROM Customers WHERE is_active = 1 AND deleted_at IS NULL ORDER BY name ASC;"
+      "SELECT customer_id, name, is_active, route_sequence FROM Customers WHERE deleted_at IS NULL ORDER BY name ASC;"
     );
-    return result.values || [];
+    const list = result.values || [];
+    return list.filter(c => c.is_active == 1 || c.is_active === true || c.is_active === 'true' || c.is_active === '1');
   }
 
   async getProducts() {
     if (!this.db) throw new Error("Database not initialized.");
-    const result = await this.db.query("SELECT * FROM Products WHERE is_active = 1;");
-    return result.values || [];
+    const result = await this.db.query("SELECT * FROM Products;");
+    const list = result.values || [];
+    return list.filter(p => p.is_active == 1 || p.is_active === true || p.is_active === 'true' || p.is_active === '1');
   }
 
   async getBillingSummary(year, month) {
@@ -954,8 +901,7 @@ class DatabaseService {
       LEFT JOIN Invoice inv ON c.customer_id = inv.customer_id
         AND inv.billing_month = ?
         AND inv.billing_year = ?
-        AND inv.deleted_at IS NULL
-      WHERE c.is_active = 1 
+      WHERE c.is_active <> 0 
         AND c.deleted_at IS NULL
       ORDER BY c.route_sequence ASC;
     `;
@@ -964,148 +910,165 @@ class DatabaseService {
   }
 
   async generateInvoice(customerId, year, month) {
-    if (!this.db) throw new Error("Database not initialized.");
-    const monthStr = String(month).padStart(2, '0');
-    const startDate = `${year}-${monthStr}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const endDate = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
+      if (!this.db) throw new Error("Database not initialized.");
+      const monthStr = String(month).padStart(2, '0');
+      const startDate = `${year}-${monthStr}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const endDate = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      try {
 
-      // 1. Check if invoice already exists
-      const checkRes = await this.db.query(
-        "SELECT invoice_id, invoice_uuid, invoice_number, billing_status FROM Invoice WHERE customer_id = ? AND billing_month = ? AND billing_year = ? AND deleted_at IS NULL LIMIT 1;",
-        [customerId, month, year]
-      );
-      
-      let existingInvoice = null;
-      if (checkRes.values && checkRes.values.length > 0) {
-        existingInvoice = checkRes.values[0];
-        if (['SHARED', 'SETTLED', 'LOCKED'].includes(existingInvoice.billing_status)) {
-          throw new Error(`Invoice is locked in status ${existingInvoice.billing_status} and cannot be regenerated.`);
-        }
-      }
-
-      // 2. Fetch delivery items for this month
-      const deliveryRes = await this.db.query(
-        `SELECT dd.*, p.product_name 
-         FROM DailyDelivery dd
-         JOIN Products p ON dd.product_id = p.product_id
-         WHERE dd.customer_id = ? 
-           AND dd.status = 'Delivered'
-           AND dd.delivery_date BETWEEN ? AND ?
-           AND dd.deleted_at IS NULL;`,
-        [customerId, startDate, endDate]
-      );
-      const deliveries = deliveryRes.values || [];
-
-      // 3. Calculate Outstanding metrics
-      const currentMonthCharges = deliveries.reduce((sum, item) => sum + Math.round(item.quantity_delivered * item.rate_applied), 0);
-
-      const payRes = await this.db.query(
-        "SELECT SUM(amount_collected) as total FROM PaymentLog WHERE customer_id = ? AND payment_date BETWEEN ? AND ? AND deleted_at IS NULL;",
-        [customerId, startDate, endDate]
-      );
-      const paymentsReceived = payRes.values && payRes.values[0].total ? payRes.values[0].total : 0;
-
-      const adjRes = await this.db.query(
-        "SELECT SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE -amount END) as total FROM AdjustmentLog WHERE customer_id = ? AND date(created_at) BETWEEN ? AND ? AND deleted_at IS NULL;",
-        [customerId, startDate, endDate]
-      );
-      const netAdjustments = adjRes.values && adjRes.values[0].total ? adjRes.values[0].total : 0;
-
-      // Previous Outstanding
-      const preChRes = await this.db.query(
-        "SELECT SUM(quantity_delivered * rate_applied) as total FROM DailyDelivery WHERE customer_id = ? AND status = 'Delivered' AND delivery_date < ? AND deleted_at IS NULL;",
-        [customerId, startDate]
-      );
-      const preCharges = preChRes.values && preChRes.values[0].total ? preChRes.values[0].total : 0;
-
-      const preAdjRes = await this.db.query(
-        "SELECT SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE -amount END) as total FROM AdjustmentLog WHERE customer_id = ? AND date(created_at) < ? AND deleted_at IS NULL;",
-        [customerId, startDate]
-      );
-      const preAdjustments = preAdjRes.values && preAdjRes.values[0].total ? preAdjRes.values[0].total : 0;
-
-      const prePayRes = await this.db.query(
-        "SELECT SUM(amount_collected) as total FROM PaymentLog WHERE customer_id = ? AND payment_date < ? AND deleted_at IS NULL;",
-        [customerId, startDate]
-      );
-      const prePayments = prePayRes.values && prePayRes.values[0].total ? prePayRes.values[0].total : 0;
-
-      const previousOutstanding = preCharges + preAdjustments - prePayments;
-
-      const grandTotal = previousOutstanding + currentMonthCharges - paymentsReceived + netAdjustments;
-
-      let invoiceId = null;
-      let invoiceUuid = "";
-      let invoiceNumber = "";
-
-      if (existingInvoice) {
-        // Regenerating -> UPDATE existing invoice header
-        invoiceId = existingInvoice.invoice_id;
-        invoiceUuid = existingInvoice.invoice_uuid;
-        invoiceNumber = existingInvoice.invoice_number;
-
-        await this.db.run(
-          `UPDATE Invoice 
-           SET previous_outstanding = ?, current_month_total = ?, payments_received = ?, net_adjustments = ?, grand_total = ?, billing_status = 'GENERATED', updated_at = CURRENT_TIMESTAMP
-           WHERE invoice_id = ?;`,
-          [previousOutstanding, currentMonthCharges, paymentsReceived, netAdjustments, grandTotal, invoiceId]
+        // 1. Check if invoice already exists
+        const checkRes = await this.db.query(
+          "SELECT invoice_id, invoice_uuid, invoice_number, billing_status FROM Invoice WHERE customer_id = ? AND billing_month = ? AND billing_year = ? LIMIT 1;",
+          [customerId, month, year]
         );
-
-        await this.db.run("DELETE FROM InvoiceLineItem WHERE invoice_id = ?;", [invoiceId]);
-        await this.db.run("UPDATE DailyDelivery SET invoice_id = NULL WHERE invoice_id = ?;", [invoiceId]);
-
-        await this.db.run(
-          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-          ['Invoice', invoiceUuid, 'UPDATE']
-        );
-      } else {
-        // New Invoice -> INSERT
-        invoiceUuid = generateUUID();
         
-        const countRes = await this.db.query("SELECT COUNT(*) as count FROM Invoice WHERE customer_id = ?;", [customerId]);
-        const seq = (countRes.values[0].count || 0) + 1;
-        const seqStr = String(seq).padStart(3, '0');
-        invoiceNumber = `INV-${year}${monthStr}-${customerId}-${seqStr}`;
+        let existingInvoice = null;
+        if (checkRes.values && checkRes.values.length > 0) {
+          existingInvoice = checkRes.values[0];
+          if (['SHARED', 'SETTLED', 'LOCKED'].includes(existingInvoice.billing_status)) {
+            throw new Error(`Invoice is locked in status ${existingInvoice.billing_status} and cannot be regenerated.`);
+          }
+        }
 
-        const runRes = await this.db.run(
-          `INSERT INTO Invoice (invoice_uuid, customer_id, invoice_number, billing_month, billing_year, previous_outstanding, current_month_total, payments_received, net_adjustments, grand_total, billing_status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'GENERATED');`,
-          [invoiceUuid, customerId, invoiceNumber, month, year, previousOutstanding, currentMonthCharges, paymentsReceived, netAdjustments, grandTotal]
+        // 2. Fetch all delivered logs for this customer in this month
+        const deliveriesRes = await this.db.query(
+          `SELECT dd.*, p.product_name 
+           FROM DailyDelivery dd
+           JOIN Products p ON dd.product_id = p.product_id
+           WHERE dd.customer_id = ? 
+             AND dd.delivery_date BETWEEN ? AND ? 
+             AND dd.status = 'Delivered'
+             AND dd.deleted_at IS NULL;`,
+          [customerId, startDate, endDate]
         );
-        invoiceId = runRes.changes.lastId;
+        const deliveries = deliveriesRes.values || [];
 
-        await this.db.run(
-          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-          ['Invoice', invoiceUuid, 'INSERT']
+        // 3. Compute charges for the month
+        let currentMonthCharges = 0;
+        for (const item of deliveries) {
+          currentMonthCharges += Math.round(item.quantity_delivered * item.rate_applied);
+        }
+
+        // 4. Compute payments collected in this month
+        const paymentsRes = await this.db.query(
+          `SELECT SUM(amount_collected) as total
+           FROM PaymentLog
+           WHERE customer_id = ?
+             AND payment_date BETWEEN ? AND ?
+             AND deleted_at IS NULL;`,
+          [customerId, startDate, endDate]
         );
+        const paymentsReceived = (paymentsRes.values && paymentsRes.values[0].total) || 0;
+
+        // 5. Compute net adjustments in this month
+        const adjustmentsRes = await this.db.query(
+          `SELECT 
+             COALESCE(SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END), 0) -
+             COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END), 0) as net_adj
+           FROM AdjustmentLog
+           WHERE customer_id = ?
+             AND created_at BETWEEN ? AND ?
+             AND deleted_at IS NULL;`,
+          [customerId, startDate + " 00:00:00", endDate + " 23:59:59"]
+        );
+        const netAdjustments = (adjustmentsRes.values && adjustmentsRes.values[0].net_adj) || 0;
+
+        // 6. Compute previous outstanding balance
+        // live balance before start of this billing period
+        const prevBalRes = await this.db.query(
+          `SELECT (
+             -- Deliveries before startDate
+             COALESCE((SELECT SUM(quantity_delivered * rate_applied) FROM DailyDelivery WHERE customer_id = ? AND status = 'Delivered' AND delivery_date < ? AND deleted_at IS NULL), 0) +
+             
+             -- Debits before startDate
+             COALESCE((SELECT SUM(amount) FROM AdjustmentLog WHERE customer_id = ? AND type = 'DEBIT' AND created_at < ? AND deleted_at IS NULL), 0) -
+             
+             -- Credits before startDate
+             COALESCE((SELECT SUM(amount) FROM AdjustmentLog WHERE customer_id = ? AND type = 'CREDIT' AND created_at < ? AND deleted_at IS NULL), 0) -
+             
+             -- Payments before startDate
+             COALESCE((SELECT SUM(amount_collected) FROM PaymentLog WHERE customer_id = ? AND payment_date < ? AND deleted_at IS NULL), 0)
+           ) AS prev_outstanding;`,
+          [customerId, startDate, customerId, startDate + " 00:00:00", customerId, startDate + " 00:00:00", customerId, startDate]
+        );
+        const previousOutstanding = (prevBalRes.values && prevBalRes.values[0].prev_outstanding) || 0;
+
+        // 7. Calculate grand total
+        const grandTotal = previousOutstanding + currentMonthCharges - paymentsReceived + netAdjustments;
+
+        let invoiceId;
+        let invoiceUuid;
+        let invoiceNumber;
+
+        if (existingInvoice) {
+          invoiceId = existingInvoice.invoice_id;
+          invoiceUuid = existingInvoice.invoice_uuid;
+          invoiceNumber = existingInvoice.invoice_number;
+
+          // Update existing invoice record
+          await this.db.run(
+            `UPDATE Invoice 
+             SET previous_outstanding = ?, current_charges = ?, payments_received = ?, net_adjustments = ?, grand_total = ?, updated_at = CURRENT_TIMESTAMP
+             WHERE invoice_id = ?;`,
+            [previousOutstanding, currentMonthCharges, paymentsReceived, netAdjustments, grandTotal, invoiceId]
+          );
+
+          // Add update to SyncQueue
+          await this.db.run(
+            "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+            ['Invoice', invoiceUuid, 'UPDATE']
+          );
+
+          // Clean old snapshot line items and delivery links
+          await this.db.run("DELETE FROM InvoiceLineItem WHERE invoice_id = ?;", [invoiceId]);
+          await this.db.run("UPDATE DailyDelivery SET invoice_id = NULL WHERE invoice_id = ?;", [invoiceId]);
+        } else {
+          // Create new invoice
+          invoiceUuid = generateUUID();
+          
+          // Generate unique invoice number: INV-YYYYMM-<route>-<lastId+1>
+          const custRes = await this.db.query("SELECT route_sequence FROM Customers WHERE customer_id = ? LIMIT 1;", [customerId]);
+          const routeSeq = (custRes.values && custRes.values[0].route_sequence) || 0;
+          const routeStr = String(routeSeq).padStart(3, '0');
+          const countRes = await this.db.query("SELECT COUNT(*) as count FROM Invoice;");
+          const nextNum = (countRes.values && countRes.values[0].count) + 1;
+          invoiceNumber = `INV-${year}${monthStr}-${routeStr}-${String(nextNum).padStart(4, '0')}`;
+
+          const runRes = await this.db.run(
+            `INSERT INTO Invoice (invoice_uuid, customer_id, invoice_number, billing_month, billing_year, previous_outstanding, current_charges, payments_received, net_adjustments, grand_total, billing_status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'GENERATED');`,
+            [invoiceUuid, customerId, invoiceNumber, month, year, previousOutstanding, currentMonthCharges, paymentsReceived, netAdjustments, grandTotal]
+          );
+          invoiceId = runRes.changes.lastId;
+
+          // Add insert to SyncQueue
+          await this.db.run(
+            "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+            ['Invoice', invoiceUuid, 'INSERT']
+          );
+        }
+
+        // snapshot InvoiceLineItem rows and Link DailyDelivery records
+        for (const item of deliveries) {
+          const lineSubtotal = Math.round(item.quantity_delivered * item.rate_applied);
+          await this.db.run(
+            `INSERT INTO InvoiceLineItem (invoice_id, delivery_id, delivery_date, delivery_shift, product_id, product_display_name_snapshot, quantity, rate_applied, line_subtotal)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+            [invoiceId, item.delivery_id, item.delivery_date, item.delivery_shift, item.product_id, item.product_name, item.quantity_delivered, item.rate_applied, lineSubtotal]
+          );
+
+          await this.db.run(
+            "UPDATE DailyDelivery SET invoice_id = ? WHERE delivery_id = ?;",
+            [invoiceId, item.delivery_id]
+          );
+        }
+        return { success: true, invoiceId, invoiceUuid, invoiceNumber };
+      } catch (err) {
+        console.error("Failed to generate/regenerate invoice:", err);
+        throw err;
       }
-
-      // snapshot InvoiceLineItem rows and Link DailyDelivery records
-      for (const item of deliveries) {
-        const lineSubtotal = Math.round(item.quantity_delivered * item.rate_applied);
-        await this.db.run(
-          `INSERT INTO InvoiceLineItem (invoice_id, delivery_id, delivery_date, delivery_shift, product_id, product_display_name_snapshot, quantity, rate_applied, line_subtotal)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-          [invoiceId, item.delivery_id, item.delivery_date, item.delivery_shift, item.product_id, item.product_name, item.quantity_delivered, item.rate_applied, lineSubtotal]
-        );
-
-        await this.db.run(
-          "UPDATE DailyDelivery SET invoice_id = ? WHERE delivery_id = ?;",
-          [invoiceId, item.delivery_id]
-        );
-      }
-
-      await this.db.execute("COMMIT;");
-      return { success: true, invoiceId, invoiceUuid, invoiceNumber };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to generate/regenerate invoice:", err);
-      throw err;
-    }
   }
 
   // Reset any SyncQueue rows stuck in PROCESSING state (e.g. app crashed mid-sync)
@@ -1115,114 +1078,102 @@ class DatabaseService {
   }
 
   async markInvoiceShared(invoiceId) {
-    if (!this.db) throw new Error("Database not initialized.");
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
-      const res = await this.db.query("SELECT invoice_uuid FROM Invoice WHERE invoice_id = ? LIMIT 1;", [invoiceId]);
-      if (!res.values || res.values.length === 0) throw new Error("Invoice not found.");
-      const uuid = res.values[0].invoice_uuid;
+      if (!this.db) throw new Error("Database not initialized.");
+      try {
+        const res = await this.db.query("SELECT invoice_uuid FROM Invoice WHERE invoice_id = ? LIMIT 1;", [invoiceId]);
+        if (!res.values || res.values.length === 0) throw new Error("Invoice not found.");
+        const uuid = res.values[0].invoice_uuid;
 
-      await this.db.run(
-        "UPDATE Invoice SET billing_status = 'SHARED', locked_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE invoice_id = ?;",
-        [invoiceId]
-      );
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['Invoice', uuid, 'UPDATE']
-      );
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      throw err;
-    }
+        await this.db.run(
+          "UPDATE Invoice SET billing_status = 'SHARED', locked_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE invoice_id = ?;",
+          [invoiceId]
+        );
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['Invoice', uuid, 'UPDATE']
+        );
+        return { success: true };
+      } catch (err) {
+        throw err;
+      }
   }
 
   async markInvoiceSettled(invoiceId) {
-    if (!this.db) throw new Error("Database not initialized.");
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
-      const res = await this.db.query(
-        "SELECT invoice_uuid, billing_status FROM Invoice WHERE invoice_id = ? LIMIT 1;",
-        [invoiceId]
-      );
-      if (!res.values || res.values.length === 0) throw new Error("Invoice not found.");
-      const { invoice_uuid: uuid, billing_status } = res.values[0];
-      if (billing_status !== 'SHARED') {
-        throw new Error(`Invoice cannot be settled from status '${billing_status}'. It must be in SHARED state.`);
+      if (!this.db) throw new Error("Database not initialized.");
+      try {
+        const res = await this.db.query(
+          "SELECT invoice_uuid, billing_status FROM Invoice WHERE invoice_id = ? LIMIT 1;",
+          [invoiceId]
+        );
+        if (!res.values || res.values.length === 0) throw new Error("Invoice not found.");
+        const { invoice_uuid: uuid, billing_status } = res.values[0];
+        if (billing_status !== 'SHARED') {
+          throw new Error(`Invoice cannot be settled from status '${billing_status}'. It must be in SHARED state.`);
+        }
+        await this.db.run(
+          "UPDATE Invoice SET billing_status = 'SETTLED', updated_at = CURRENT_TIMESTAMP WHERE invoice_id = ?;",
+          [invoiceId]
+        );
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['Invoice', uuid, 'UPDATE']
+        );
+        return { success: true };
+      } catch (err) {
+        throw err;
       }
-      await this.db.run(
-        "UPDATE Invoice SET billing_status = 'SETTLED', updated_at = CURRENT_TIMESTAMP WHERE invoice_id = ?;",
-        [invoiceId]
-      );
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['Invoice', uuid, 'UPDATE']
-      );
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      throw err;
-    }
   }
 
   async markInvoiceLocked(invoiceId) {
-    if (!this.db) throw new Error("Database not initialized.");
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
-      const res = await this.db.query(
-        "SELECT invoice_uuid, billing_status FROM Invoice WHERE invoice_id = ? LIMIT 1;",
-        [invoiceId]
-      );
-      if (!res.values || res.values.length === 0) throw new Error("Invoice not found.");
-      const { invoice_uuid: uuid, billing_status } = res.values[0];
-      if (billing_status !== 'SETTLED') {
-        throw new Error(`Invoice cannot be locked from status '${billing_status}'. It must be in SETTLED state.`);
+      if (!this.db) throw new Error("Database not initialized.");
+      try {
+        const res = await this.db.query(
+          "SELECT invoice_uuid, billing_status FROM Invoice WHERE invoice_id = ? LIMIT 1;",
+          [invoiceId]
+        );
+        if (!res.values || res.values.length === 0) throw new Error("Invoice not found.");
+        const { invoice_uuid: uuid, billing_status } = res.values[0];
+        if (billing_status !== 'SETTLED') {
+          throw new Error(`Invoice cannot be locked from status '${billing_status}'. It must be in SETTLED state.`);
+        }
+        await this.db.run(
+          "UPDATE Invoice SET billing_status = 'LOCKED', updated_at = CURRENT_TIMESTAMP WHERE invoice_id = ?;",
+          [invoiceId]
+        );
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['Invoice', uuid, 'UPDATE']
+        );
+        return { success: true };
+      } catch (err) {
+        throw err;
       }
-      await this.db.run(
-        "UPDATE Invoice SET billing_status = 'LOCKED', updated_at = CURRENT_TIMESTAMP WHERE invoice_id = ?;",
-        [invoiceId]
-      );
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['Invoice', uuid, 'UPDATE']
-      );
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      throw err;
-    }
   }
 
   async logAdjustment(adjustmentData) {
-    if (!this.db) throw new Error("Database not initialized.");
-    const { customer_id, amount, type, reason, reference_invoice_id } = adjustmentData;
-    if (!['CREDIT', 'DEBIT'].includes(type)) throw new Error('Invalid adjustment type. Must be CREDIT or DEBIT.');
-    if (!amount || amount <= 0) throw new Error('Adjustment amount must be a positive number.');
-    if (!reason || !reason.trim()) throw new Error('Adjustment reason is required.');
+      if (!this.db) throw new Error("Database not initialized.");
+      const { customer_id, amount, type, reason, reference_invoice_id } = adjustmentData;
+      if (!['CREDIT', 'DEBIT'].includes(type)) throw new Error('Invalid adjustment type. Must be CREDIT or DEBIT.');
+      if (!amount || amount <= 0) throw new Error('Adjustment amount must be a positive number.');
+      if (!reason || !reason.trim()) throw new Error('Adjustment reason is required.');
 
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
-      const adjustmentUuid = generateUUID();
-      const runRes = await this.db.run(
-        `INSERT INTO AdjustmentLog (adjustment_uuid, customer_id, amount, type, reason, reference_invoice_id, sync_status)
-         VALUES (?, ?, ?, ?, ?, ?, 0);`,
-        [adjustmentUuid, customer_id, amount, type, reason.trim(), reference_invoice_id || null]
-      );
-      const adjustmentId = runRes.changes.lastId;
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['AdjustmentLog', adjustmentUuid, 'INSERT']
-      );
-      await this.db.execute("COMMIT;");
-      return { success: true, adjustmentId, adjustmentUuid };
-    } catch (err) {
-      await this.db.execute("ROLLBACK;");
-      console.error("Failed to log adjustment in transaction:", err);
-      throw err;
-    }
+      try {
+        const adjustmentUuid = generateUUID();
+        const runRes = await this.db.run(
+          `INSERT INTO AdjustmentLog (adjustment_uuid, customer_id, amount, type, reason, reference_invoice_id, sync_status)
+           VALUES (?, ?, ?, ?, ?, ?, 0);`,
+          [adjustmentUuid, customer_id, amount, type, reason.trim(), reference_invoice_id || null]
+        );
+        const adjustmentId = runRes.changes.lastId;
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['AdjustmentLog', adjustmentUuid, 'INSERT']
+        );
+        return { success: true, adjustmentId, adjustmentUuid };
+      } catch (err) {
+        console.error("Failed to log adjustment in transaction:", err);
+        throw err;
+      }
   }
 
   async getAdjustments(customerId) {
@@ -1291,32 +1242,30 @@ class DatabaseService {
   }
 
   async resolveQueueSynced(syncId, entityType, entityUuid) {
+    // NOTE: No runExclusive here — sync runs in background and must not block user writes.
     if (!this.db) throw new Error("Database not initialized.");
     try {
-      await this.db.execute("BEGIN TRANSACTION;");
       await this.db.run("DELETE FROM SyncQueue WHERE sync_id = ?;", [syncId]);
       
       let table = null;
       let uuidCol = null;
-      switch (entityType) {
-        case 'DailyDelivery': table = 'DailyDelivery'; uuidCol = 'delivery_uuid'; break;
-        case 'PaymentLog': table = 'PaymentLog'; uuidCol = 'payment_uuid'; break;
-        case 'AdjustmentLog': table = 'AdjustmentLog'; uuidCol = 'adjustment_uuid'; break;
-        case 'Invoice': table = 'Invoice'; uuidCol = 'invoice_uuid'; break;
-        case 'Customers': table = 'Customers'; uuidCol = 'customer_uuid'; break;
-        case 'Subscriptions': table = 'Subscriptions'; uuidCol = 'sub_uuid'; break;
-        case 'VacationSchedules': table = 'VacationSchedules'; uuidCol = 'vacation_uuid'; break;
-      }
-      
+        switch (entityType) {
+          case 'DailyDelivery': table = 'DailyDelivery'; uuidCol = 'delivery_uuid'; break;
+          case 'PaymentLog': table = 'PaymentLog'; uuidCol = 'payment_uuid'; break;
+          case 'AdjustmentLog': table = 'AdjustmentLog'; uuidCol = 'adjustment_uuid'; break;
+          case 'Invoice': table = 'Invoice'; uuidCol = 'invoice_uuid'; break;
+          case 'Customers': table = 'Customers'; uuidCol = 'customer_uuid'; break;
+          case 'Subscriptions': table = 'Subscriptions'; uuidCol = 'sub_uuid'; break;
+          case 'VacationSchedules': table = 'VacationSchedules'; uuidCol = 'vacation_uuid'; break;
+        }
+        
       if (table && uuidCol) {
         await this.db.run(
           `UPDATE ${table} SET sync_status = 3, updated_at = CURRENT_TIMESTAMP WHERE ${uuidCol} = ?;`,
           [entityUuid]
         );
       }
-      await this.db.execute("COMMIT;");
     } catch (e) {
-      await this.db.execute("ROLLBACK;");
       throw e;
     }
   }
@@ -1338,150 +1287,143 @@ class DatabaseService {
   }
 
   async addCustomer(customerData) {
-    if (!this.db) throw new Error("Database not initialized.");
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
-      
-      const customerUuid = generateUUID();
-      const runRes = await this.db.run(
-        `INSERT INTO Customers (customer_uuid, name, phone_number, address, route_sequence, special_notes, auto_invoice_delivery, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1);`,
-        [
-          customerUuid,
-          customerData.name,
-          customerData.phone_number,
-          customerData.address || '',
-          customerData.route_sequence || 1,
-          customerData.special_notes || '',
-          customerData.auto_invoice_delivery !== undefined ? customerData.auto_invoice_delivery : 1
-        ]
-      );
-      
-      const customerId = runRes.changes.lastId;
-      
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['Customers', customerUuid, 'INSERT']
-      );
-      
-      if (customerData.subscriptions && customerData.subscriptions.length > 0) {
-        for (const sub of customerData.subscriptions) {
-          const subUuid = generateUUID();
-          await this.db.run(
-            `INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step, is_active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 1);`,
-            [subUuid, customerId, sub.product_id, sub.delivery_shift, sub.default_quantity, sub.custom_rate, sub.quantity_step || 0.25]
-          );
-          
-          await this.db.run(
-            "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-            ['Subscriptions', subUuid, 'INSERT']
-          );
-        }
-      }
-      
-      await this.db.execute("COMMIT;");
-      return { success: true, customerId, customerUuid };
-    } catch (e) {
-      await this.db.execute("ROLLBACK;");
-      throw e;
-    }
-  }
-
-  async updateCustomer(customerId, customerData) {
-    if (!this.db) throw new Error("Database not initialized.");
-    try {
-      await this.db.execute("BEGIN TRANSACTION;");
-      
-      const res = await this.db.query("SELECT customer_uuid FROM Customers WHERE customer_id = ? LIMIT 1;", [customerId]);
-      if (!res.values || res.values.length === 0) throw new Error("Customer not found.");
-      const customerUuid = res.values[0].customer_uuid;
-      
-      await this.db.run(
-        `UPDATE Customers SET 
-          name = ?, 
-          phone_number = ?, 
-          address = ?, 
-          route_sequence = ?, 
-          special_notes = ?, 
-          auto_invoice_delivery = ?,
-          updated_at = CURRENT_TIMESTAMP
-         WHERE customer_id = ?;`,
-        [
-          customerData.name,
-          customerData.phone_number,
-          customerData.address || '',
-          customerData.route_sequence || 1,
-          customerData.special_notes || '',
-          customerData.auto_invoice_delivery !== undefined ? customerData.auto_invoice_delivery : 1,
-          customerId
-        ]
-      );
-      
-      await this.db.run(
-        "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-        ['Customers', customerUuid, 'UPDATE']
-      );
-      
-      if (customerData.subscriptions && customerData.subscriptions.length > 0) {
-        for (const sub of customerData.subscriptions) {
-          const subRes = await this.db.query(
-            "SELECT sub_id, sub_uuid FROM Subscriptions WHERE customer_id = ? AND delivery_shift = ? LIMIT 1;",
-            [customerId, sub.delivery_shift]
-          );
-          
-          if (subRes.values && subRes.values.length > 0) {
-            const subId = subRes.values[0].sub_id;
-            const subUuid = subRes.values[0].sub_uuid;
-            
-            if (sub.is_deleted) {
-              await this.db.run(
-                "UPDATE Subscriptions SET is_active = 0, deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE sub_id = ?;",
-                [subId]
-              );
-              await this.db.run(
-                "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-                ['Subscriptions', subUuid, 'UPDATE']
-              );
-            } else {
-              await this.db.run(
-                `UPDATE Subscriptions SET 
-                  product_id = ?, 
-                  default_quantity = ?, 
-                  custom_rate = ?, 
-                  quantity_step = ?, 
-                  is_active = 1,
-                  deleted_at = NULL,
-                  updated_at = CURRENT_TIMESTAMP
-                 WHERE sub_id = ?;`,
-                [sub.product_id, sub.default_quantity, sub.custom_rate, sub.quantity_step || 0.25, subId]
-              );
-              await this.db.run(
-                "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
-                ['Subscriptions', subUuid, 'UPDATE']
-              );
-            }
-          } else if (!sub.is_deleted) {
+      if (!this.db) throw new Error("Database not initialized.");
+      try {
+        
+        const customerUuid = generateUUID();
+        const runRes = await this.db.run(
+          `INSERT INTO Customers (customer_uuid, name, phone_number, address, route_sequence, special_notes, auto_invoice_delivery, is_active)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 1);`,
+          [
+            customerUuid,
+            customerData.name,
+            customerData.phone_number,
+            customerData.address || '',
+            customerData.route_sequence || 1,
+            customerData.special_notes || '',
+            customerData.auto_invoice_delivery !== undefined ? customerData.auto_invoice_delivery : 1
+          ]
+        );
+        
+        const customerId = runRes.changes.lastId;
+        
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['Customers', customerUuid, 'INSERT']
+        );
+        
+        if (customerData.subscriptions && customerData.subscriptions.length > 0) {
+          for (const sub of customerData.subscriptions) {
+            if (sub.is_deleted) continue;
             const subUuid = generateUUID();
             await this.db.run(
               `INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step, is_active)
                VALUES (?, ?, ?, ?, ?, ?, ?, 1);`,
               [subUuid, customerId, sub.product_id, sub.delivery_shift, sub.default_quantity, sub.custom_rate, sub.quantity_step || 0.25]
             );
+            
             await this.db.run(
               "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
               ['Subscriptions', subUuid, 'INSERT']
             );
           }
         }
+        return { success: true, customerId, customerUuid };
+      } catch (e) {
+        throw e;
       }
-      
-      await this.db.execute("COMMIT;");
-      return { success: true };
-    } catch (e) {
-      await this.db.execute("ROLLBACK;");
-      throw e;
-    }
+  }
+
+  async updateCustomer(customerId, customerData) {
+      if (!this.db) throw new Error("Database not initialized.");
+      try {
+        
+        const res = await this.db.query("SELECT customer_uuid FROM Customers WHERE customer_id = ? LIMIT 1;", [customerId]);
+        if (!res.values || res.values.length === 0) throw new Error("Customer not found.");
+        const customerUuid = res.values[0].customer_uuid;
+        
+        await this.db.run(
+          `UPDATE Customers SET 
+            name = ?, 
+            phone_number = ?, 
+            address = ?, 
+            route_sequence = ?, 
+            special_notes = ?, 
+            auto_invoice_delivery = ?,
+            updated_at = CURRENT_TIMESTAMP
+           WHERE customer_id = ?;`,
+          [
+            customerData.name,
+            customerData.phone_number,
+            customerData.address || '',
+            customerData.route_sequence || 1,
+            customerData.special_notes || '',
+            customerData.auto_invoice_delivery !== undefined ? customerData.auto_invoice_delivery : 1,
+            customerId
+          ]
+        );
+        
+        await this.db.run(
+          "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+          ['Customers', customerUuid, 'UPDATE']
+        );
+        
+        if (customerData.subscriptions && customerData.subscriptions.length > 0) {
+          for (const sub of customerData.subscriptions) {
+            const subRes = await this.db.query(
+              "SELECT sub_id, sub_uuid FROM Subscriptions WHERE customer_id = ? AND delivery_shift = ? LIMIT 1;",
+              [customerId, sub.delivery_shift]
+            );
+            
+            if (subRes.values && subRes.values.length > 0) {
+              const subId = subRes.values[0].sub_id;
+              const subUuid = subRes.values[0].sub_uuid;
+              
+              if (sub.is_deleted) {
+                await this.db.run(
+                  "UPDATE Subscriptions SET is_active = 0, deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE sub_id = ?;",
+                  [subId]
+                );
+                await this.db.run(
+                  "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+                  ['Subscriptions', subUuid, 'UPDATE']
+                );
+              } else {
+                await this.db.run(
+                  `UPDATE Subscriptions SET 
+                    product_id = ?, 
+                    default_quantity = ?, 
+                    custom_rate = ?, 
+                    quantity_step = ?, 
+                    is_active = 1,
+                    deleted_at = NULL,
+                    updated_at = CURRENT_TIMESTAMP
+                   WHERE sub_id = ?;`,
+                  [sub.product_id, sub.default_quantity, sub.custom_rate, sub.quantity_step || 0.25, subId]
+                );
+                await this.db.run(
+                  "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+                  ['Subscriptions', subUuid, 'UPDATE']
+                );
+              }
+            } else if (!sub.is_deleted) {
+              const subUuid = generateUUID();
+              await this.db.run(
+                `INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step, is_active)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 1);`,
+                [subUuid, customerId, sub.product_id, sub.delivery_shift, sub.default_quantity, sub.custom_rate, sub.quantity_step || 0.25]
+              );
+              await this.db.run(
+                "INSERT INTO SyncQueue (entity_type, entity_uuid, operation) VALUES (?, ?, ?);",
+                ['Subscriptions', subUuid, 'INSERT']
+              );
+            }
+          }
+        }
+        return { success: true };
+      } catch (e) {
+        throw e;
+      }
   }
 
   // Generic query wrapper helper

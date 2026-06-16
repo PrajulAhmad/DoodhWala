@@ -32,6 +32,7 @@ const standpayMode = ref('Cash');
 const standpayNotes = ref('');
 const standpaySuccess = ref('');
 const standpayError = ref('');
+const recentPayments = ref([]);
 
 // Offline simulation flag
 const isOffline = ref(true);
@@ -44,6 +45,14 @@ const loadCustomersForPayments = async () => {
     paymentCustomers.value = await dbService.getAllCustomersForPayment();
   } catch (err) {
     console.error("Failed to load active customers for payments:", err);
+  }
+};
+
+const loadRecentPayments = async () => {
+  try {
+    recentPayments.value = await dbService.getRecentPayments(10);
+  } catch (err) {
+    console.error("Failed to load recent payments:", err);
   }
 };
 
@@ -86,6 +95,7 @@ onMounted(async () => {
 watch(currentTab, async (newTab) => {
   if (newTab === 'payments') {
     await loadCustomersForPayments();
+    await loadRecentPayments();
   }
 });
 
@@ -119,6 +129,8 @@ const recordStandalonePayment = async () => {
     selectedPaymentCustId.value = null;
     standpayAmount.value = 0.0;
     standpayNotes.value = '';
+    
+    await loadRecentPayments();
     
     setTimeout(() => { standpaySuccess.value = ''; }, 3000);
   } catch (err) {
@@ -298,6 +310,45 @@ const recordStandalonePayment = async () => {
           >
             Confirm & Log Payment
           </button>
+        </div>
+
+        <!-- Recent Payments Panel -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
+          <div class="flex items-center space-x-2 border-b border-surface-variant pb-3 mb-2">
+            <span class="material-symbols-outlined text-primary text-[24px]">history</span>
+            <h2 class="font-bold text-on-surface text-lg">Recent Payment Receipts</h2>
+          </div>
+
+          <div v-if="recentPayments.length === 0" class="py-8 text-center text-xs text-on-surface-variant">
+            No payments logged recently.
+          </div>
+
+          <div v-else class="space-y-3">
+            <div 
+              v-for="pay in recentPayments" 
+              :key="pay.pay_id" 
+              class="flex items-center justify-between p-3 rounded-lg border border-outline-variant bg-surface-container-low shadow-sm"
+            >
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-green-50 text-green-700 flex items-center justify-center font-bold text-xs">
+                  {{ pay.payment_mode === 'Cash' ? '💵' : '📱' }}
+                </div>
+                <div>
+                  <h4 class="font-bold text-on-surface text-sm">{{ pay.customer_name }}</h4>
+                  <p class="text-xs text-on-surface-variant mt-0.5">
+                    {{ new Date(pay.payment_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) }} 
+                    <span class="text-outline">•</span> {{ pay.payment_mode }} 
+                    <span v-if="pay.notes" class="text-outline">•</span> {{ pay.notes }}
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="font-bold text-green-700 text-sm">
+                  ₹{{ (pay.amount_collected / 100).toFixed(2) }}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
