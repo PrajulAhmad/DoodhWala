@@ -262,7 +262,7 @@ const skipShift = async (customer) => {
         COALESCE((SELECT SUM(dd.quantity_delivered * dd.rate_applied) FROM DailyDelivery dd WHERE dd.customer_id = ? AND dd.status = 'Delivered' AND dd.deleted_at IS NULL), 0) +
         COALESCE((SELECT SUM(adj.amount) FROM AdjustmentLog adj WHERE adj.customer_id = ? AND adj.type = 'DEBIT' AND adj.deleted_at IS NULL), 0) -
         COALESCE((SELECT SUM(adj.amount) FROM AdjustmentLog adj WHERE adj.customer_id = ? AND adj.type = 'CREDIT' AND adj.deleted_at IS NULL), 0) -
-        COALESCE((SELECT SUM(pay.amount_collected) FROM PaymentLog pay WHERE pay.deleted_at IS NULL), 0)
+        COALESCE((SELECT SUM(pay.amount_collected) FROM PaymentLog pay WHERE pay.customer_id = ? AND pay.deleted_at IS NULL), 0)
       ) AS live_balance
     `, [customer.customer_id, customer.customer_id, customer.customer_id, customer.customer_id]);
     

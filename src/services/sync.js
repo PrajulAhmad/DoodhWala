@@ -1,5 +1,6 @@
 import { dbService } from './db';
 import { notificationService } from './notifications';
+import { config } from '../config';
 
 class SyncService {
   constructor() {
@@ -25,8 +26,8 @@ class SyncService {
     }
 
     const settings = await dbService.getAppSettings();
-    if (!settings || !settings.supabase_url || !settings.supabase_anon_key || !settings.milkman_uuid) {
-      console.log("Sync skipped: Supabase credentials not configured in AppSettings.");
+    if (!settings || !config.supabaseUrl || !config.supabaseAnonKey || !settings.milkman_uuid) {
+      console.log("Sync skipped: Supabase credentials not configured in environment variables or app is missing milkman_uuid.");
       return;
     }
     // Require real auth session (not dev bypass token) for actual sync
@@ -93,7 +94,9 @@ class SyncService {
 
   // Sync a single record using Supabase PostgREST API
   async syncEntity(item, settings) {
-    const { supabase_url, supabase_anon_key, auth_token, milkman_uuid } = settings;
+    const { auth_token, milkman_uuid } = settings;
+    const supabase_url = config.supabaseUrl;
+    const supabase_anon_key = config.supabaseAnonKey;
     const { entity_type, entity_uuid, operation } = item;
 
     // Use JWT auth_token for Authorization if available (enables RLS),
@@ -326,7 +329,8 @@ class SyncService {
 
   // Sync nested InvoiceLineItem entries associated with an Invoice
   async syncInvoiceLineItems(invoiceUuid, ownerUuid, settings) {
-    const { supabase_url, supabase_anon_key } = settings;
+    const supabase_url = config.supabaseUrl;
+    const supabase_anon_key = config.supabaseAnonKey;
 
     // Get parent invoice ID
     const invRes = await dbService.query("SELECT invoice_id FROM Invoice WHERE invoice_uuid = ? LIMIT 1;", [invoiceUuid]);

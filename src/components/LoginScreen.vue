@@ -2,6 +2,7 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { authService } from '../services/auth';
 import { dbService } from '../services/db';
+import { config } from '../config';
 
 const emit = defineEmits(['logged-in']);
 
@@ -9,24 +10,20 @@ const emit = defineEmits(['logged-in']);
 // 'phone' | 'otp' | 'setup'
 const step = ref('phone');
 
-// ─── Supabase config (loaded from AppSettings) ──────────────────────────
+// ─── Supabase config ───────────────────────────────────
 const supabaseUrl = ref('');
 const supabaseAnonKey = ref('');
 const configLoaded = ref(false);
 const configError = ref('');
 
-// Load Supabase config from AppSettings on mount
-const loadConfig = async () => {
-  while (!dbService.initialized) {
-    await new Promise(resolve => setTimeout(resolve, 50));
-  }
-  const settings = await dbService.getAppSettings();
-  supabaseUrl.value = settings?.supabase_url || '';
-  supabaseAnonKey.value = settings?.supabase_anon_key || '';
+// Load Supabase config from config.js on mount
+const loadConfig = () => {
+  supabaseUrl.value = config.supabaseUrl;
+  supabaseAnonKey.value = config.supabaseAnonKey;
   configLoaded.value = true;
 
   if (!supabaseUrl.value || !supabaseAnonKey.value) {
-    configError.value = 'Supabase URL and Anon Key must be configured first. Use the fields below.';
+    configError.value = 'Supabase URL and Anon Key are not configured in environment variables. Please contact the developer.';
   }
 };
 loadConfig();
@@ -49,17 +46,17 @@ const sendOtp = async () => {
   }
 
   if (!supabaseUrl.value || !supabaseAnonKey.value) {
-    phoneError.value = 'Supabase is not configured. Please fill in the Supabase URL and Anon Key below first.';
+    phoneError.value = 'Supabase is not configured. Please verify environment variables.';
     return;
   }
 
   otpSending.value = true;
   try {
-    await authService.requestOtp(supabaseUrl.value, supabaseAnonKey.value, phoneFormatted.value);
+    await authService.requestOtp(phoneFormatted.value);
     step.value = 'otp';
     startResendTimer();
   } catch (err) {
-    phoneError.value = err.message || 'Failed to send OTP. Check your connection and Supabase configuration.';
+    phoneError.value = err.message || 'Failed to send OTP. Check your internet connection.';
   } finally {
     otpSending.value = false;
   }
@@ -98,8 +95,6 @@ const verifyOtp = async () => {
   otpVerifying.value = true;
   try {
     const { accessToken, userId } = await authService.verifyOtp(
-      supabaseUrl.value,
-      supabaseAnonKey.value,
       phoneFormatted.value,
       code
     );
@@ -171,41 +166,20 @@ const saveSetup = async () => {
 const isDev = import.meta.env.DEV;
 
 const devBypass = async () => {
-  // In dev mode, skip auth and go directly to main app
-  // Seeds a dev session UUID so the app considers itself logged in
-  await dbService.run(
-    `UPDATE AppSettings SET milkman_uuid = ?, auth_token = ?, phone_number = ? WHERE setting_id = 1;`,
-    ['dev-milkman-uuid', 'dev-bypass-token', '+910000000000']
-  );
-  emit('logged-in');
-};
-
-// ─── Inline Supabase config (shown if not configured) ───────────────────
-const showConfig = ref(false);
-const configSaving = ref(false);
-const configSuccess = ref('');
-
-const saveConfig = async () => {
-  if (!supabaseUrl.value.trim() || !supabaseAnonKey.value.trim()) {
-    configError.value = 'Both Supabase URL and Anon Key are required.';
-    return;
-  }
-  configSaving.value = true;
   try {
+    // In dev mode, skip auth and go directly to main app
+    // Seeds a dev session UUID so the app considers itself logged in
     await dbService.run(
-      `UPDATE AppSettings SET supabase_url = ?, supabase_anon_key = ? WHERE setting_id = 1;`,
-      [supabaseUrl.value.trim(), supabaseAnonKey.value.trim()]
+      `UPDATE AppSettings SET milkman_uuid = ?, auth_token = ?, phone_number = ? WHERE setting_id = 1;`,
+      ['dev-milkman-uuid', 'dev-bypass-token', '+910000000000']
     );
-    configError.value = '';
-    configSuccess.value = 'Supabase settings saved!';
-    showConfig.value = false;
-    setTimeout(() => { configSuccess.value = ''; }, 3000);
+    emit('logged-in');
   } catch (err) {
-    configError.value = 'Failed to save config: ' + err.message;
-  } finally {
-    configSaving.value = false;
+    console.error("Dev bypass failed:", err);
+    alert("Dev bypass failed: " + err.message);
   }
 };
+
 </script>
 
 <template>
@@ -229,6 +203,7 @@ const saveConfig = async () => {
 
         <!-- Phone input -->
         <div class="login-form">
+          <p v-if="configError" class="login-error">{{ configError }}</p>
           <label class="login-label">Mobile Number</label>
           <div class="login-phone-row">
             <span class="login-phone-prefix">+91</span>
@@ -248,48 +223,13 @@ const saveConfig = async () => {
           <button
             id="send-otp-btn"
             @click="sendOtp"
-            :disabled="otpSending || !configLoaded"
+            :disabled="otpSending || !configLoaded || !!configError"
             class="login-btn-primary"
           >
             <span v-if="otpSending" class="material-symbols-outlined login-spin">sync</span>
             <span v-else class="material-symbols-outlined">sms</span>
             {{ otpSending ? 'Sending OTP…' : 'Send OTP' }}
           </button>
-        </div>
-
-        <!-- Supabase config section (collapsible) -->
-        <div class="login-config-section">
-          <button
-            @click="showConfig = !showConfig"
-            class="login-config-toggle"
-          >
-            <span class="material-symbols-outlined text-[16px]">settings</span>
-            {{ showConfig ? 'Hide' : 'Configure Supabase' }}
-            <span class="material-symbols-outlined text-[14px] ml-auto" :class="showConfig ? 'rotate-180' : ''">expand_more</span>
-          </button>
-
-          <div v-if="showConfig" class="login-config-panel">
-            <p class="login-config-hint">
-              Enter your Supabase project credentials. Find these in your Supabase dashboard → Settings → API.
-            </p>
-            <input
-              v-model="supabaseUrl"
-              type="text"
-              placeholder="https://xxxx.supabase.co"
-              class="login-config-input"
-            />
-            <input
-              v-model="supabaseAnonKey"
-              type="password"
-              placeholder="eyJhbGciOi… (anon public key)"
-              class="login-config-input"
-            />
-            <p v-if="configError" class="login-error">{{ configError }}</p>
-            <p v-if="configSuccess" class="login-success">{{ configSuccess }}</p>
-            <button @click="saveConfig" :disabled="configSaving" class="login-btn-secondary">
-              {{ configSaving ? 'Saving…' : 'Save Configuration' }}
-            </button>
-          </div>
         </div>
 
         <!-- Dev Mode bypass -->

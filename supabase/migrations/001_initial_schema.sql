@@ -8,7 +8,7 @@
 --   • UUID primary keys (TEXT → UUID)
 --   • owner_uuid UUID NOT NULL — links every row to auth.users.id
 --   • Row Level Security (RLS) enforced on all tables
---   • Timestamps use TIMESTAMPTZ (timezone-aware)
+--   • Timestampsa use TIMESTAMPTZ (timezone-aware)
 -- ============================================================
 
 -- ─────────────────────────────────────────────────────────────

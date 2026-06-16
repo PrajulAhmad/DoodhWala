@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { dbService } from '../services/db';
 import { syncService } from '../services/sync';
+import { config } from '../config';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
@@ -46,6 +47,8 @@ const syncError = ref('');
 const syncSuccess = ref('');
 const backupSuccess = ref('');
 const backupError = ref('');
+
+const hasSupabaseConfig = computed(() => !!(config.supabaseUrl && config.supabaseAnonKey));
 
 // Load all configuration data
 const loadData = async () => {
@@ -533,7 +536,7 @@ const exportTableCsv = async (tableName) => {
       </div>
     </div>
 
-    <!-- 5. SUPABASE SYNC CONFIG SECTION -->
+    <!-- 5. CLOUD SYNC STATUS SECTION -->
     <div class="border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm">
       <button 
         @click="toggleSection('sync')"
@@ -541,24 +544,25 @@ const exportTableCsv = async (tableName) => {
       >
         <span class="flex items-center">
           <span class="material-symbols-outlined text-[18px] mr-2 text-primary">cloud_sync</span>
-          Supabase Sync Configuration
+          Cloud Synchronization
         </span>
         <span class="material-symbols-outlined transition-transform duration-200" :class="activeSection === 'sync' ? 'rotate-180' : ''">expand_more</span>
       </button>
 
       <div v-if="activeSection === 'sync'" class="p-4 space-y-4 border-t border-outline-variant animate-in slide-in-from-top duration-200">
-        <div>
-          <label class="text-xs font-semibold block text-on-surface-variant mb-1">Supabase Endpoint URL</label>
-          <input v-model="settings.supabase_url" type="text" placeholder="https://yourproject.supabase.co" class="w-full border border-outline-variant bg-surface rounded px-3 py-2 text-sm text-on-surface focus:outline-none" />
+        <!-- Connection Status -->
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-on-surface-variant font-semibold">Service Status:</span>
+          <span :class="['px-2 py-0.5 rounded-full font-bold text-[10px]', hasSupabaseConfig ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200']">
+            {{ hasSupabaseConfig ? 'Cloud Sync Ready' : 'Offline Mode Only' }}
+          </span>
         </div>
-        <div>
-          <label class="text-xs font-semibold block text-on-surface-variant mb-1">Supabase Anon Key</label>
-          <input v-model="settings.supabase_anon_key" type="password" placeholder="eyJhbGciOi..." class="w-full border border-outline-variant bg-surface rounded px-3 py-2 text-sm text-on-surface focus:outline-none" />
-        </div>
-        <div>
-          <label class="text-xs font-semibold block text-on-surface-variant mb-1">Milkman/Owner UUID (RLS Auth ID)</label>
-          <input v-model="settings.milkman_uuid" type="text" placeholder="e.g. user-auth-uuid-12345" class="w-full border border-outline-variant bg-surface rounded px-3 py-2 text-sm text-on-surface focus:outline-none" />
-          <span class="text-[10px] text-on-surface-variant mt-0.5 block">Enforces row-level security and per-user data isolation on cloud uploads.</span>
+
+        <div v-if="settings.milkman_uuid" class="text-xs space-y-1">
+          <span class="text-on-surface-variant font-semibold block">Milkman Account ID:</span>
+          <span class="font-mono text-[11px] bg-surface-container px-2 py-1.5 rounded block text-on-surface break-all select-all">
+            {{ settings.milkman_uuid }}
+          </span>
         </div>
 
         <!-- Last Sync Info -->
@@ -569,17 +573,14 @@ const exportTableCsv = async (tableName) => {
         <p v-if="syncSuccess" class="text-xs font-semibold text-green-700 bg-green-50 p-2 rounded border border-green-200">{{ syncSuccess }}</p>
         <p v-if="syncError" class="text-xs font-semibold text-error bg-red-50 p-2 rounded border border-red-200">{{ syncError }}</p>
 
-        <div class="flex space-x-3">
-          <button @click="saveSettings" class="flex-1 py-2 bg-surface-container border border-outline-variant text-on-surface font-semibold text-xs rounded-lg hover:bg-surface-dim">
-            Save Config
-          </button>
+        <div class="pt-2">
           <button 
             @click="runManualSync" 
-            :disabled="syncRunning"
-            class="flex-1 py-2 bg-primary text-on-primary font-bold text-xs rounded-lg hover:bg-primary/95 flex items-center justify-center disabled:opacity-50"
+            :disabled="syncRunning || !hasSupabaseConfig"
+            class="w-full py-2.5 bg-primary text-on-primary font-bold text-xs rounded-lg hover:bg-primary/95 flex items-center justify-center disabled:opacity-50 shadow-sm"
           >
-            <span class="material-symbols-outlined text-[16px] mr-1" :class="syncRunning ? 'animate-spin' : ''">sync</span>
-            {{ syncRunning ? 'Syncing...' : 'Sync Now' }}
+            <span class="material-symbols-outlined text-[16px] mr-1.5" :class="syncRunning ? 'animate-spin' : ''">sync</span>
+            {{ syncRunning ? 'Synchronizing...' : 'Sync Now' }}
           </button>
         </div>
       </div>

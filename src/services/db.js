@@ -1,6 +1,15 @@
 import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Capacitor } from '@capacitor/core';
 
+// For web platform, dynamically load and define jeep-sqlite custom element
+if (Capacitor.getPlatform() === 'web') {
+  import('jeep-sqlite/loader').then(({ defineCustomElements }) => {
+    defineCustomElements(window);
+  }).catch(err => {
+    console.error("Failed to load jeep-sqlite custom element:", err);
+  });
+}
+
 const sqliteConnection = new SQLiteConnection(CapacitorSQLite);
 
 const generateUUID = () => {
@@ -24,9 +33,20 @@ class DatabaseService {
 
     try {
       const platform = Capacitor.getPlatform();
-
       if (platform === 'web') {
         console.warn("SQLite running on web platform. For full persistence, run on Android.");
+        
+        // Append jeep-sqlite custom element if not present in the body
+        if (!document.querySelector('jeep-sqlite')) {
+          const jeepSqliteEl = document.createElement('jeep-sqlite');
+          document.body.appendChild(jeepSqliteEl);
+        }
+        
+        // Wait for custom element to be defined
+        await customElements.whenDefined('jeep-sqlite');
+        
+        // Initialize IndexedDB web store wrapper for SQLite
+        await sqliteConnection.initWebStore();
       }
 
       this.db = await sqliteConnection.createConnection(
@@ -38,6 +58,33 @@ class DatabaseService {
       );
 
       await this.db.open();
+
+      // For web platform, bypass transaction queries at connection level
+      if (platform === 'web') {
+        const originalExecute = this.db.execute.bind(this.db);
+        this.db.execute = async (statement) => {
+          const trimmed = statement.trim().toUpperCase();
+          if (trimmed === 'BEGIN TRANSACTION;' || trimmed === 'COMMIT;' || trimmed === 'ROLLBACK;') {
+            console.log(`[Web SQL Bypass] Intercepted raw transaction SQL: ${trimmed}`);
+            return { changes: { changes: 0 } };
+          }
+          return await originalExecute(statement);
+        };
+
+        this.db.beginTransaction = async () => {
+          console.log(`[Web SQL Bypass] Intercepted native beginTransaction`);
+          return { changes: { changes: 0 } };
+        };
+        this.db.commitTransaction = async () => {
+          console.log(`[Web SQL Bypass] Intercepted native commitTransaction`);
+          return { changes: { changes: 0 } };
+        };
+        this.db.rollbackTransaction = async () => {
+          console.log(`[Web SQL Bypass] Intercepted native rollbackTransaction`);
+          return { changes: { changes: 0 } };
+        };
+      }
+
       await this.createSchema();
       await this.seedInitialData();
       
@@ -332,11 +379,11 @@ class DatabaseService {
     console.log("Seeding initial test data into SQLite database...");
 
     try {
-      await this.db.execute("BEGIN TRANSACTION;");
+      await this.db.beginTransaction();
 
       // 1. Insert Products
-      await this.db.run("INSERT INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-cow-uuid", "Cow Milk", "Litre"]);
-      await this.db.run("INSERT INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-buffalo-uuid", "Buffalo Milk", "Litre"]);
+      await this.db.run("INSERT OR IGNORE INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-cow-uuid", "Cow Milk", "Litre"]);
+      await this.db.run("INSERT OR IGNORE INTO Products (product_uuid, product_name, unit) VALUES (?, ?, ?);", ["prod-buffalo-uuid", "Buffalo Milk", "Litre"]);
 
       // 2. Insert Customers
       const customersSeed = [
@@ -349,7 +396,7 @@ class DatabaseService {
 
       for (const c of customersSeed) {
         await this.db.run(
-          "INSERT INTO Customers (customer_id, customer_uuid, name, phone_number, address, route_sequence, special_notes) VALUES (?, ?, ?, ?, ?, ?, ?);",
+          "INSERT OR IGNORE INTO Customers (customer_id, customer_uuid, name, phone_number, address, route_sequence, special_notes) VALUES (?, ?, ?, ?, ?, ?, ?);",
           [c.id, c.uuid, c.name, c.phone, c.address, c.seq, c.notes]
         );
       }
@@ -357,27 +404,27 @@ class DatabaseService {
       // 3. Insert Subscriptions
       // Amit Kumar: Cow Milk, Morning (shift 0), default quantity 1.5, custom rate 6500 paise (₹65.00)
       await this.db.run(
-        "INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
         ['sub-amit-uuid', 1, 1, 0, 1.5, 6500, 0.25]
       );
       // Rohan Sharma: Cow Milk, Morning (shift 0), default 1.5, rate 6500
       await this.db.run(
-        "INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
         ['sub-rohan-uuid', 2, 1, 0, 1.5, 6500, 0.25]
       );
       // Priya Devi: Cow Milk, Morning (shift 0), default 1.0, rate 6500
       await this.db.run(
-        "INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
         ['sub-priya-uuid', 3, 1, 0, 1.0, 6500, 0.25]
       );
       // Sunil Gupta: Buffalo Milk, Morning (shift 0), default 2.0, rate 7500 (₹75.00)
       await this.db.run(
-        "INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
         ['sub-sunil-uuid', 4, 2, 0, 2.0, 7500, 0.25]
       );
       // Vikram Singh: Cow Milk, Morning (shift 0), default 1.0, rate 6500
       await this.db.run(
-        "INSERT INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO Subscriptions (sub_uuid, customer_id, product_id, delivery_shift, default_quantity, custom_rate, quantity_step) VALUES (?, ?, ?, ?, ?, ?, ?);",
         ['sub-vikram-uuid', 5, 1, 0, 1.0, 6500, 0.25]
       );
 
@@ -386,27 +433,31 @@ class DatabaseService {
       const today = new Date().toISOString().split('T')[0];
       const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       await this.db.run(
-        "INSERT INTO VacationSchedules (vacation_uuid, customer_id, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO VacationSchedules (vacation_uuid, customer_id, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?);",
         ['vac-priya-uuid', 3, today, nextWeek, 1]
       );
 
       // 5. Seed financial ledger adjustments to test balances
       // Amit Kumar (Customer 1): ₹1,850.00 outstanding dues (185000 paise)
       await this.db.run(
-        "INSERT INTO AdjustmentLog (adjustment_uuid, customer_id, amount, type, reason) VALUES (?, ?, ?, ?, ?);",
+        "INSERT OR IGNORE INTO AdjustmentLog (adjustment_uuid, customer_id, amount, type, reason) VALUES (?, ?, ?, ?, ?);",
         ['adj-amit-dues', 1, 185000, 'DEBIT', 'Opening Balance Dues']
       );
 
       // Sunil Gupta (Customer 4): ₹200.00 advance credit (20000 paise)
       await this.db.run(
-        "INSERT INTO PaymentLog (payment_uuid, customer_id, amount_collected, payment_mode, notes) VALUES (?, ?, ?, ? ,?);",
+        "INSERT OR IGNORE INTO PaymentLog (payment_uuid, customer_id, amount_collected, payment_mode, notes) VALUES (?, ?, ?, ? ,?);",
         ['pay-sunil-credit', 4, 20000, 'Cash', 'Opening Advance Payment']
       );
 
-      await this.db.execute("COMMIT;");
+      await this.db.commitTransaction();
       console.log("Seeding initial data completed successfully.");
     } catch (err) {
-      await this.db.execute("ROLLBACK;");
+      try {
+        await this.db.rollbackTransaction();
+      } catch (rollbackErr) {
+        console.error("Failed to rollback seeding transaction:", rollbackErr);
+      }
       console.error("Seeding initial data failed, transaction rolled back:", err);
       throw err;
     }

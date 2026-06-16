@@ -50,18 +50,21 @@ This creates all 13 cloud tables with Row Level Security enabled. Each milkman o
 
 ---
 
-## Step 5 — Configure the App
+## Step 5 — Configure and Build the App
 
-Open the DoodhWala app on your Android device:
+As the developer, you configure the Supabase backend credentials at build-time so they are securely baked into the app:
 
-1. On the **Login screen**, tap **Configure Supabase** (at the bottom)
-2. Enter:
-   - **Supabase URL**: your Project URL from Step 4
-   - **Supabase Anon Key**: the anon public key from Step 4
-3. Tap **Save Configuration**
-4. Now tap **Send OTP** to log in with your phone number
+1. In the project root directory, copy the template configuration file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Open `.env` and fill in:
+   - `VITE_SUPABASE_URL`: Your project URL from Step 4
+   - `VITE_SUPABASE_ANON_KEY`: Your anon public key from Step 4
+3. Save the file.
+4. When you build the app (`npm run build`), Vite will automatically embed these credentials.
+5. The milkman can now launch the app, enter their phone number, and log in directly via SMS OTP without seeing or configuring any database URLs.
 
-Or if already logged in, go to **Settings → Supabase Sync Configuration** to update credentials there.
 
 ---
 

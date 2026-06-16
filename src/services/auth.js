@@ -4,6 +4,7 @@
  * No @supabase/supabase-js dependency — consistent with the existing sync.js approach.
  */
 import { dbService } from './db';
+import { config } from '../config';
 
 class AuthService {
   /**
@@ -27,12 +28,12 @@ class AuthService {
 
   /**
    * Request an OTP to be sent to the given phone number via Supabase.
-   * @param {string} supabaseUrl - The Supabase project URL from AppSettings
-   * @param {string} supabaseAnonKey - The anon public key from AppSettings
    * @param {string} phone - Phone number in E.164 format, e.g. +919876543210
    * @returns {Promise<void>} - Resolves on success, throws on failure
    */
-  async requestOtp(supabaseUrl, supabaseAnonKey, phone) {
+  async requestOtp(phone) {
+    const supabaseUrl = config.supabaseUrl;
+    const supabaseAnonKey = config.supabaseAnonKey;
     const url = `${supabaseUrl.replace(/\/$/, '')}/auth/v1/otp`;
     const response = await fetch(url, {
       method: 'POST',
@@ -52,13 +53,13 @@ class AuthService {
   /**
    * Verify the OTP token for a given phone number.
    * Returns the Supabase access_token and user UUID on success.
-   * @param {string} supabaseUrl
-   * @param {string} supabaseAnonKey
    * @param {string} phone - E.164 format
    * @param {string} token - The 6-digit OTP code
    * @returns {Promise<{ accessToken: string, userId: string }>}
    */
-  async verifyOtp(supabaseUrl, supabaseAnonKey, phone, token) {
+  async verifyOtp(phone, token) {
+    const supabaseUrl = config.supabaseUrl;
+    const supabaseAnonKey = config.supabaseAnonKey;
     const url = `${supabaseUrl.replace(/\/$/, '')}/auth/v1/verify`;
     const response = await fetch(url, {
       method: 'POST',
