@@ -1010,7 +1010,7 @@ class DatabaseService {
           // Update existing invoice record
           await this.db.run(
             `UPDATE Invoice 
-             SET previous_outstanding = ?, current_charges = ?, payments_received = ?, net_adjustments = ?, grand_total = ?, updated_at = CURRENT_TIMESTAMP
+             SET previous_outstanding = ?, current_month_total = ?, payments_received = ?, net_adjustments = ?, grand_total = ?, updated_at = CURRENT_TIMESTAMP
              WHERE invoice_id = ?;`,
             [previousOutstanding, currentMonthCharges, paymentsReceived, netAdjustments, grandTotal, invoiceId]
           );
@@ -1037,7 +1037,7 @@ class DatabaseService {
           invoiceNumber = `INV-${year}${monthStr}-${routeStr}-${String(nextNum).padStart(4, '0')}`;
 
           const runRes = await this.db.run(
-            `INSERT INTO Invoice (invoice_uuid, customer_id, invoice_number, billing_month, billing_year, previous_outstanding, current_charges, payments_received, net_adjustments, grand_total, billing_status)
+            `INSERT INTO Invoice (invoice_uuid, customer_id, invoice_number, billing_month, billing_year, previous_outstanding, current_month_total, payments_received, net_adjustments, grand_total, billing_status)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'GENERATED');`,
             [invoiceUuid, customerId, invoiceNumber, month, year, previousOutstanding, currentMonthCharges, paymentsReceived, netAdjustments, grandTotal]
           );

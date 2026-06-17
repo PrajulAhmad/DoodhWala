@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { Capacitor } from '@capacitor/core';
+import { FileOpener } from '@capacitor-community/file-opener';
 import { dbService } from '../services/db';
 import { pdfService } from '../services/pdf';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -122,22 +124,40 @@ const shareInvoice = async (customer) => {
 const viewInvoicePDF = async (customer) => {
   try {
     let invoiceId = customer.invoice_id;
+    let invoiceNumber = customer.invoice_number;
     if (!invoiceId) {
       const period = getSelectedPeriod();
       const genRes = await dbService.generateInvoice(customer.customer_id, period.year, period.month);
       invoiceId = genRes.invoiceId;
+      invoiceNumber = genRes.invoiceNumber;
     }
     
     const pdfBase64 = await pdfService.generateInvoicePDF(invoiceId);
-    const byteCharacters = atob(pdfBase64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    
+    if (Capacitor.getPlatform() === 'web') {
+      const byteCharacters = atob(pdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, '_blank');
+    } else {
+      const fileName = `DoodhWala_Invoice_${invoiceNumber || 'temp'}.pdf`;
+      const writeRes = await Filesystem.writeFile({
+        path: fileName,
+        data: pdfBase64,
+        directory: Directory.Cache,
+        recursive: true
+      });
+      await FileOpener.open({
+        filePath: writeRes.uri,
+        contentType: 'application/pdf',
+        openWithDefault: true
+      });
     }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(blob);
-    window.open(blobUrl, '_blank');
     
     if (!customer.invoice_id) {
       await loadBillingSummary();
