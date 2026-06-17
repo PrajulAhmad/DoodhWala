@@ -63,18 +63,18 @@ export const pdfService = {
     doc.setFontSize(22);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text(profile.business_name || profile.milkman_name, margin, y);
-    
+
     // Invoice Metadata
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128); // Muted gray
     const metaX = pageWidth - margin;
-    
+
     doc.text(`Invoice: ${invoice.invoice_number}`, metaX, y, { align: 'right' });
     y += 6;
     doc.text(`Date: ${new Date(invoice.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, metaX, y, { align: 'right' });
     y += 6;
-    
+
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const periodStr = `${monthNames[invoice.billing_month - 1]} ${invoice.billing_year}`;
     doc.text(`Period: ${periodStr}`, metaX, y, { align: 'right' });
@@ -111,7 +111,7 @@ export const pdfService = {
     // Table Header
     doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
     doc.rect(margin, y, contentWidth, 8, 'F');
-    
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.text("Date", margin + 2, y + 5.5);
@@ -125,7 +125,7 @@ export const pdfService = {
     // Table Rows
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
-    
+
     lineItems.forEach((item, index) => {
       // Page break check
       if (y > 250) {
@@ -157,7 +157,7 @@ export const pdfService = {
       doc.text(item.product_display_name_snapshot, margin + 50, y + 5);
       doc.text(`${item.quantity.toFixed(2)}L`, margin + 95, y + 5);
       doc.text(`Rs ${(item.rate_applied / 100).toFixed(2)}`, margin + 120, y + 5);
-      
+
       const rowSubtotal = (item.line_subtotal / 100).toFixed(2);
       doc.text(`Rs ${rowSubtotal}`, pageWidth - margin - 2, y + 5, { align: 'right' });
       y += 7;
@@ -170,21 +170,21 @@ export const pdfService = {
     // Summaries
     const summaryX = pageWidth - margin - 50;
     const valueX = pageWidth - margin - 2;
-    
-    doc.text("Previous Outstanding:", summaryX, y);
+
+    doc.text("Previous Outstanding: ", summaryX, y);
     doc.text(`Rs ${(invoice.previous_outstanding / 100).toFixed(2)}`, valueX, y, { align: 'right' });
     y += 6;
-    
-    doc.text("Current Month Charges:", summaryX, y);
+
+    doc.text("Current Month Charges: ", summaryX, y);
     doc.text(`Rs ${(invoice.current_month_total / 100).toFixed(2)}`, valueX, y, { align: 'right' });
     y += 6;
-    
-    doc.text("Payments Received:", summaryX, y);
+
+    doc.text("Payments Received: ", summaryX, y);
     doc.text(`Rs -${(invoice.payments_received / 100).toFixed(2)}`, valueX, y, { align: 'right' });
     y += 6;
 
     if (invoice.net_adjustments !== 0) {
-      doc.text("Net Adjustments:", summaryX, y);
+      doc.text("Net Adjustments: ", summaryX, y);
       const adjVal = invoice.net_adjustments;
       doc.text(`Rs ${adjVal < 0 ? '-' : ''}${Math.abs(adjVal / 100).toFixed(2)}`, valueX, y, { align: 'right' });
       y += 6;
@@ -193,7 +193,7 @@ export const pdfService = {
     doc.line(summaryX, y - 2, pageWidth - margin, y - 2);
 
     doc.setFont('helvetica', 'bold');
-    doc.text("TOTAL AMOUNT DUE:", summaryX, y + 2);
+    doc.text("TOTAL AMOUNT DUE: ", summaryX, y + 2);
     doc.text(`Rs ${(invoice.grand_total / 100).toFixed(2)}`, valueX, y + 2, { align: 'right' });
     y += 15;
 
@@ -204,23 +204,19 @@ export const pdfService = {
     }
 
     doc.setFillColor(243, 244, 246);
-    doc.rect(margin, y, contentWidth, 25, 'F');
-    
+    doc.rect(margin, y, contentWidth, 18, 'F');
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.text("Pay Instantly Via UPI:", margin + 5, y + 7);
-    
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.text("Pay via UPI", margin + 5, y + 7);
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
-    doc.text(`UPI ID: ${profile.upi_id}`, margin + 5, y + 13);
-    
-    // Construct UPI Deep Link
-    const upiLink = `upi://pay?pa=${profile.upi_id}&am=${(invoice.grand_total / 100).toFixed(2)}&tn=Milk+Bill+${periodStr.replace(' ', '')}`;
-    doc.setFontSize(8);
     doc.setTextColor(107, 114, 128);
-    doc.text(`Link: ${upiLink}`, margin + 5, y + 19);
+    doc.text(`UPI ID: ${profile.upi_id}`, margin + 5, y + 13);
 
-    y += 35;
+    y += 28;
 
     // Footer Thank you note
     doc.setFont('helvetica', 'italic');
